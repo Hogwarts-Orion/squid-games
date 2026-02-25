@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SQUID GAMES ORION 2.0</title>
+    <style>
+        /* CSS INTEGRADO */
+        :root {
+            --pink-squid: #ff2e63;
+            --green-live: #00ff41;
+            --gold-champ: #ffd700;
+            --dark-bg: #0a0a0a;
+            --gray-card: rgba(255, 255, 255, 0.05);
+        }
+
+        body {
+            background-color: var(--dark-bg);
+            color: white;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        header { text-align: center; margin-bottom: 30px; }
+        
+        .logo { font-size: 2.5rem; letter-spacing: 15px; margin-bottom: 10px; }
+        
+        .orion { 
+            color: var(--pink-squid); 
+            text-shadow: 0 0 15px var(--pink-squid); 
+            font-weight: bold;
+        }
+
+        /* CONTADOR */
+        .countdown-container {
+            background: var(--gray-card);
+            border: 1px solid var(--pink-squid);
+            padding: 20px;
+            border-radius: 5px;
+            text-align: center;
+            width: 90%;
+            max-width: 500px;
+            margin-bottom: 30px;
+        }
+
+        #timer {
+            font-size: 2rem;
+            color: var(--pink-squid);
+            font-weight: bold;
+        }
+
+        /* FORMULARIO */
+        .registration-form {
+            background: var(--gray-card);
+            padding: 20px;
+            border-radius: 5px;
+            width: 90%;
+            max-width: 500px;
+            border-left: 5px solid var(--pink-squid);
+            margin-bottom: 30px;
+        }
+
+        input, select, button {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            background: #222;
+            border: 1px solid #444;
+            color: white;
+            box-sizing: border-box;
+        }
+
+        button {
+            background: var(--pink-squid);
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        button:hover { background: #e21b4d; transform: scale(1.02); }
+
+        /* SISTEMA DE HECHIZOS */
+        .spell-system {
+            width: 90%;
+            max-width: 500px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .spell-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .spell-btn {
+            background: transparent;
+            border: 1px solid #555;
+            font-size: 0.8rem;
+        }
+
+        .spell-btn:hover { border-color: var(--pink-squid); }
+
+        /* ALTAR DEL CAMPEÓN */
+        .hall-of-fame {
+            margin-top: 20px;
+            text-align: center;
+            padding: 20px;
+            border: 2px solid var(--gold-champ);
+            border-radius: 50%;
+            width: 150px;
+            height: 150px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .champion-name { color: var(--gold-champ); font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">🔺 ⚪ 🟦</div>
+        <h1>SQUID GAMES <span class="orion">ORION</span></h1>
+        <p>EDICIÓN 2.0: EL RENACER</p>
+    </header>
+
+    <section class="countdown-container">
+        <h3>TIEMPO PARA EL DÍA 1</h3>
+        <div id="timer">Cargando cronómetro...</div>
+    </section>
+
+    <section class="registration-form">
+        <h3>REGISTRO DE ASPIRANTE</h3>
+        <input type="text" id="reg-name" placeholder="Tu Nombre o Nick">
+        <select id="reg-house">
+            <option value="Gryffindor">Gryffindor</option>
+            <option value="Slytherin">Slytherin</option>
+            <option value="Hufflepuff">Hufflepuff</option>
+            <option value="Ravenclaw">Ravenclaw</option>
+        </select>
+        <button onclick="registerPlayer()">OBTENER NÚMERO</button>
+        <div id="welcome-msg" style="margin-top:15px; color: var(--green-live);"></div>
+    </section>
+
+    <section class="spell-system">
+        <h3>ACADEMIA DE DUELOS (PRÁCTICA)</h3>
+        <p style="font-size: 0.7rem; color: #888;">Entrena tus reflejos para el Día 4</p>
+        <div class="spell-grid">
+            <button class="spell-btn" onclick="castSpell('Expelliarmus')">Expelliarmus</button>
+            <button class="spell-btn" onclick="castSpell('Incendio')">Incendio</button>
+            <button class="spell-btn" onclick="castSpell('Sectumsempra')">Sectumsempra</button>
+            <button class="spell-btn" onclick="castSpell('Avada Kedavra')">Avada Kedavra</button>
+        </div>
+        <div id="spell-log" style="margin-top:10px; font-style: italic; color: var(--pink-squid);"></div>
+    </section>
+
+    <section class="hall-of-fame">
+        <span style="font-size: 0.6rem;">CAMPEÓN 1.0</span>
+        <span class="champion-name">FRAN</span>
+        <span style="font-size: 1.2rem;">007</span>
+    </section>
+
+    <script>
+        // LÓGICA DEL CONTADOR (Configurado para 7 días a partir de ahora)
+        const deadline = new Date().getTime() + (7 * 24 * 60 * 60 * 1000);
+
+        setInterval(() => {
+            const now = new Date().getTime();
+            const diff = deadline - now;
+
+            const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const s = Math.floor((diff % (1000 * 60)) / 1000);
+
+            document.getElementById("timer").innerHTML = `${d}d ${h}h ${m}m ${s}s`;
+        }, 1000);
+
+        // LÓGICA DE REGISTRO
+        function registerPlayer() {
+            const name = document.getElementById("reg-name").value;
+            if(!name) return alert("Debes ingresar un nombre");
+            const randomNum = Math.floor(Math.random() * 500).toString().padStart(3, '0');
+            document.getElementById("welcome-msg").innerHTML = 
+                `REGISTRO EXITOSO: JUGADOR ${randomNum} - ${name}. <br>¡Prepárate para morir!`;
+        }
+
+        // LÓGICA DE HECHIZOS
+        function castSpell(spell) {
+            const log = document.getElementById("spell-log");
+            log.innerHTML = `Lanzando ${spell}... ✨`;
+            setTimeout(() => log.innerHTML = "", 2000);
+        }
+    </script>
+</body>
+</html>
