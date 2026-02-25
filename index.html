@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SQUID GAMES ORION 2.0</title>
     <style>
-        /* CSS INTEGRADO */
+        /* CSS: EL DISEÑO VISUAL */
         :root {
             --pink-squid: #ff2e63;
             --green-live: #00ff41;
@@ -45,6 +45,7 @@
             width: 90%;
             max-width: 500px;
             margin-bottom: 30px;
+            box-shadow: 0 0 15px rgba(255, 46, 99, 0.2);
         }
 
         #timer {
@@ -66,12 +67,13 @@
 
         input, select, button {
             width: 100%;
-            padding: 10px;
+            padding: 12px;
             margin: 10px 0;
-            background: #222;
-            border: 1px solid #444;
+            background: #1a1a1a;
+            border: 1px solid #333;
             color: white;
             box-sizing: border-box;
+            border-radius: 4px;
         }
 
         button {
@@ -80,11 +82,12 @@
             cursor: pointer;
             font-weight: bold;
             transition: 0.3s;
+            text-transform: uppercase;
         }
 
         button:hover { background: #e21b4d; transform: scale(1.02); }
 
-        /* SISTEMA DE HECHIZOS */
+        /* ACADEMIA DE HECHIZOS */
         .spell-system {
             width: 90%;
             max-width: 500px;
@@ -100,11 +103,15 @@
 
         .spell-btn {
             background: transparent;
-            border: 1px solid #555;
+            border: 1px solid #444;
             font-size: 0.8rem;
+            margin: 0;
         }
 
-        .spell-btn:hover { border-color: var(--pink-squid); }
+        .spell-btn:hover { 
+            border-color: var(--pink-squid); 
+            color: var(--pink-squid);
+        }
 
         /* ALTAR DEL CAMPEÓN */
         .hall-of-fame {
@@ -118,9 +125,16 @@
             display: flex;
             flex-direction: column;
             justify-content: center;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
         }
 
-        .champion-name { color: var(--gold-champ); font-weight: bold; }
+        .champion-name { 
+            color: var(--gold-champ); 
+            font-weight: bold; 
+            text-shadow: 0 0 10px var(--gold-champ);
+        }
+
+        #welcome-msg { font-weight: bold; font-size: 0.9rem; }
     </style>
 </head>
 <body>
@@ -132,8 +146,8 @@
     </header>
 
     <section class="countdown-container">
-        <h3>TIEMPO PARA EL DÍA 1</h3>
-        <div id="timer">Cargando cronómetro...</div>
+        <h3>INICIO DE LA PRUEBA EN:</h3>
+        <div id="timer">Cargando...</div>
     </section>
 
     <section class="registration-form">
@@ -146,19 +160,18 @@
             <option value="Ravenclaw">Ravenclaw</option>
         </select>
         <button onclick="registerPlayer()">OBTENER NÚMERO</button>
-        <div id="welcome-msg" style="margin-top:15px; color: var(--green-live);"></div>
+        <div id="welcome-msg" style="margin-top:15px;"></div>
     </section>
 
     <section class="spell-system">
-        <h3>ACADEMIA DE DUELOS (PRÁCTICA)</h3>
-        <p style="font-size: 0.7rem; color: #888;">Entrena tus reflejos para el Día 4</p>
+        <h3>ACADEMIA DE DUELOS (ENTRENAR)</h3>
         <div class="spell-grid">
             <button class="spell-btn" onclick="castSpell('Expelliarmus')">Expelliarmus</button>
             <button class="spell-btn" onclick="castSpell('Incendio')">Incendio</button>
             <button class="spell-btn" onclick="castSpell('Sectumsempra')">Sectumsempra</button>
             <button class="spell-btn" onclick="castSpell('Avada Kedavra')">Avada Kedavra</button>
         </div>
-        <div id="spell-log" style="margin-top:10px; font-style: italic; color: var(--pink-squid);"></div>
+        <div id="spell-log" style="margin-top:15px; min-height: 20px; color: var(--pink-squid);"></div>
     </section>
 
     <section class="hall-of-fame">
@@ -168,35 +181,51 @@
     </section>
 
     <script>
-        // LÓGICA DEL CONTADOR (Configurado para 7 días a partir de ahora)
-        const deadline = new Date().getTime() + (7 * 24 * 60 * 60 * 1000);
+        /* JAVASCRIPT: LA LÓGICA */
 
-        setInterval(() => {
+        // 1. Contador: Configurado para 7 días desde hoy
+        const countdownDate = new Date().getTime() + (7 * 24 * 60 * 60 * 1000);
+
+        const x = setInterval(function() {
             const now = new Date().getTime();
-            const diff = deadline - now;
+            const distance = countdownDate - now;
 
-            const d = Math.floor(diff / (1000 * 60 * 60 * 24));
-            const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-            const s = Math.floor((diff % (1000 * 60)) / 1000);
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
-            document.getElementById("timer").innerHTML = `${d}d ${h}h ${m}m ${s}s`;
+            document.getElementById("timer").innerHTML = days + "d " + hours + "h " +
+            minutes + "m " + seconds + "s ";
+
+            if (distance < 0) {
+                clearInterval(x);
+                document.getElementById("timer").innerHTML = "¡EL JUEGO HA COMENZADO!";
+            }
         }, 1000);
 
-        // LÓGICA DE REGISTRO
+        // 2. Función de Registro
         function registerPlayer() {
             const name = document.getElementById("reg-name").value;
-            if(!name) return alert("Debes ingresar un nombre");
-            const randomNum = Math.floor(Math.random() * 500).toString().padStart(3, '0');
-            document.getElementById("welcome-msg").innerHTML = 
-                `REGISTRO EXITOSO: JUGADOR ${randomNum} - ${name}. <br>¡Prepárate para morir!`;
+            if(name.trim() === "") {
+                alert("Debes ingresar un nombre para ser rastreado.");
+                return;
+            }
+            const num = Math.floor(Math.random() * 456) + 1;
+            const paddedNum = num.toString().padStart(3, '0');
+            
+            const msg = document.getElementById("welcome-msg");
+            msg.style.color = "var(--green-live)";
+            msg.innerHTML = `ASIGNADO: JUGADOR ${paddedNum}<br>BIENVENIDO A LA MASACRE, ${name.toUpperCase()}.`;
         }
 
-        // LÓGICA DE HECHIZOS
+        // 3. Función de Hechizos
         function castSpell(spell) {
             const log = document.getElementById("spell-log");
-            log.innerHTML = `Lanzando ${spell}... ✨`;
-            setTimeout(() => log.innerHTML = "", 2000);
+            log.innerHTML = `> Ejecutando: ${spell}...`;
+            setTimeout(() => {
+                log.innerHTML = "";
+            }, 1500);
         }
     </script>
 </body>
