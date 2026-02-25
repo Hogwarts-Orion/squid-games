@@ -4,106 +4,58 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ORION SQUID GAMES | MASTER</title>
-    
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-
     <style>
         :root { --pk: #ff2e63; --gr: #00ff41; --gd: #ffd700; --bk: #050505; --rd: #ff003c; --bl: #08d9d6; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { background: var(--bk); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 10px; min-height: 100vh; overflow-x: hidden; user-select: none; touch-action: manipulation; }
-
-        .card { background: rgba(20,20,20,0.95); border: 1px solid #333; border-radius: 12px; padding: 20px; margin-bottom: 10px; width: 100%; max-width: 480px; margin-left: auto; margin-right: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
-        .logo { font-size: 1.8rem; letter-spacing: 8px; text-shadow: 0 0 10px var(--pk); text-align: center; color: white; margin-bottom: 15px; font-weight: 900; }
-        
-        .btn-reset { position: fixed; right: 15px; top: 15px; background: rgba(255,255,255,0.1); border: 1px solid #444; border-radius: 50%; width: 45px; height: 45px; display: flex; justify-content: center; align-items: center; z-index: 10000; cursor: pointer; font-size: 1.2rem; }
-
-        input { width: 100%; padding: 14px; margin-bottom: 10px; background: #000; color: white; border: 1px solid #444; border-radius: 8px; font-size: 1rem; text-align: center; }
-        button { width: 100%; padding: 14px; margin: 5px 0; background: transparent; border: 2px solid var(--pk); color: var(--pk); font-size: 0.9rem; font-weight: bold; cursor: pointer; border-radius: 8px; text-transform: uppercase; }
+        body { background: var(--bk); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 10px; min-height: 100vh; display: flex; flex-direction: column; align-items: center; }
+        .card { background: rgba(20,20,20,0.95); border: 1px solid #333; border-radius: 12px; padding: 20px; width: 100%; max-width: 480px; box-shadow: 0 10px 30px rgba(0,0,0,0.8); text-align: center; }
+        .logo { font-size: 1.8rem; letter-spacing: 8px; text-shadow: 0 0 10px var(--pk); margin-bottom: 15px; font-weight: 900; }
+        .btn-reset { position: fixed; right: 15px; top: 15px; background: rgba(255,255,255,0.1); border: 1px solid #444; border-radius: 50%; width: 45px; height: 45px; display: flex; justify-content: center; align-items: center; z-index: 10000; cursor: pointer; }
+        input { width: 100%; padding: 14px; margin-bottom: 10px; background: #000; color: white; border: 1px solid #444; border-radius: 8px; text-align: center; }
+        button { width: 100%; padding: 14px; margin: 5px 0; background: transparent; border: 2px solid var(--pk); color: var(--pk); font-weight: bold; border-radius: 8px; text-transform: uppercase; cursor: pointer; }
         button:active { background: var(--pk); color: white; }
-        
-        .btn-admin-access { border-color: var(--rd); color: var(--rd); margin-top: 15px; }
-        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
-        .grid-3 button { padding: 10px 2px; font-size: 0.7rem; border-width: 1px; }
-
-        .stats-row { display: flex; justify-content: space-between; background: #111; padding: 12px; border-radius: 8px; margin-bottom: 10px; border: 1px solid #333; font-family: monospace; }
         .luz { width: 70px; height: 70px; border-radius: 50%; margin: 15px auto; border: 4px solid #111; }
         .luz-verde { background: var(--gr); box-shadow: 0 0 30px var(--gr); }
         .luz-roja { background: var(--rd); box-shadow: 0 0 30px var(--rd); }
-
         .view { display: none; }
         .active-view { display: block !important; }
-
-        #toast-container { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 11000; width: 90%; max-width: 350px; }
-        .toast { background: #111; border: 1px solid var(--bl); color: white; padding: 12px; border-radius: 8px; text-align: center; margin-bottom: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+        #dalgona-btn { height: 120px; font-size: 1.2rem; transition: background 0.1s; touch-action: none; }
+        #dalgona-btn.pressing { background: var(--gd); color: black; border-color: var(--gd); }
     </style>
 </head>
 <body>
 
-    <div id="toast-container"></div>
-    <div class="btn-reset" onclick="hardReset()">🔄</div>
-
+    <div class="btn-reset" onclick="localStorage.clear(); location.reload();">🔄</div>
     <div class="logo">🔺⚪🟦</div>
 
     <section id="view-login" class="card view active-view">
-        <h3 style="text-align:center; margin:0 0 15px 0;">INGRESO AL SISTEMA</h3>
-        <input type="text" id="username" placeholder="NOMBRE DEL MAGO">
+        <input type="text" id="username" placeholder="TU NOMBRE">
         <button onclick="access('PLAYER')" style="background: var(--pk); color:white;">ENTRAR A LA ARENA</button>
-        <button onclick="access('VIP')" style="border-color: var(--gd); color: var(--gd);">MODO ESPECTADOR</button>
-        
         <div style="margin-top:20px; border-top: 1px solid #333; padding-top:15px;">
-            <input type="password" id="admin-pass" placeholder="PASSWORD GUARDIÁN">
-            <button class="btn-admin-access" onclick="access('ADMIN')">PANEL DE CONTROL</button>
+            <input type="password" id="admin-pass" placeholder="PASSWORD">
+            <button onclick="access('ADMIN')" style="border-color: var(--rd); color: var(--rd);">PANEL ADMIN</button>
         </div>
     </section>
 
     <section id="view-player" class="card view">
-        <div class="stats-row">
-            <span id="p-tag" style="color:var(--bl);">#000</span>
-            <span id="p-status" style="color:var(--gr);">VIVO</span>
-        </div>
-        <h2 id="p-game-title" style="text-align:center; color:var(--pk); margin:5px 0;">ESPERA</h2>
-        <div id="p-canvas" style="min-height: 150px; text-align:center;"></div>
+        <h2 id="p-game-title">ESPERA</h2>
+        <div id="p-canvas"></div>
     </section>
 
-    <section id="view-admin" class="card view" style="border-color:var(--rd);">
-        <h3 style="margin:0 0 10px 0; color:var(--rd); text-align:center;">MANDO GLOBAL</h3>
-        <div class="stats-row" style="font-size:0.9rem;">
-            <span>V: <b id="a-alive">0</b></span>
-            <span>J: <b id="a-game">...</b></span>
-            <span>M: <b id="a-dead">0</b></span>
+    <section id="view-admin" class="card view">
+        <h3>MANDO GLOBAL</h3>
+        <div id="admin-luz-ctrl" style="display:none; margin-bottom:10px;">
+            <button onclick="dbSet('state/light', 'VERDE')" style="color:var(--gr)">VERDE</button>
+            <button onclick="dbSet('state/light', 'ROJO')" style="color:var(--rd)">ROJA</button>
         </div>
-
-        <div id="admin-luz-ctrl" style="display:none; margin-bottom:10px;" class="grid-2">
-            <button onclick="dbSet('state/light', 'VERDE')" style="border-color:var(--gr); color:var(--gr);">VERDE</button>
-            <button onclick="dbSet('state/light', 'ROJO')" style="border-color:var(--rd); color:var(--rd);">ROJA</button>
-        </div>
-
-        <div class="grid-3">
-            <button onclick="adminGame('ESPERA')">RESET</button>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:5px;">
             <button onclick="adminGame('LUZ ROJA')">L.ROJA</button>
             <button onclick="adminGame('DALGONA')">DALGONA</button>
-            <button onclick="adminGame('PUENTE')">PUENTE</button>
             <button onclick="adminGame('TIPEO')">TIPEO</button>
-            <button onclick="adminGame('CANICAS')">CANICAS</button>
-            <button onclick="adminGame('RULETA')">RULETA</button>
-            <button onclick="adminGame('REFLEJOS')">REFLEJOS</button>
-            <button onclick="adminGame('CÁLIZ')">CÁLIZ</button>
+            <button onclick="adminGame('ESPERA')">RESET</button>
         </div>
-
-        <div class="grid-2" style="margin-top:10px;">
-            <button onclick="killSlow()" style="border-color:var(--rd); font-size:0.7rem;">ELIMINAR LENTOS</button>
-            <button onclick="reviveAll()" style="border-color:var(--gr); font-size:0.7rem;">REVIVIR TODOS</button>
-        </div>
-    </section>
-
-    <section id="view-vip" class="card view">
-        <h2 id="v-title" style="text-align:center; color:var(--gd);">PANEL VIP</h2>
-        <div class="stats-row" style="text-align:center; display:block;">
-            VIVOS: <span id="v-alive" style="color:var(--gr)">0</span> | 
-            MUERTOS: <span id="v-dead" style="color:var(--rd)">0</span>
-        </div>
-        <p style="text-align:center;">JUEGO: <span id="v-game">...</span></p>
     </section>
 
     <script>
@@ -111,102 +63,85 @@
         firebase.initializeApp(fbCfg);
         const db = firebase.database();
 
-        let U = { id: localStorage.getItem('os_id'), role: localStorage.getItem('os_role'), st: 'ALIVE', prog: 0 };
-        
-        function notify(m, t='info') {
-            const c = document.getElementById('toast-container');
-            const e = document.createElement('div'); e.className = 'toast'; e.innerText = m;
-            c.appendChild(e); setTimeout(() => e.remove(), 2500);
-        }
-
-        function hardReset() { localStorage.clear(); location.reload(); }
+        let U = { id: localStorage.getItem('os_id'), role: localStorage.getItem('os_role'), st: 'ALIVE', q: false };
+        let td; // Timer para Dalgona
 
         function access(role) {
             const name = document.getElementById('username').value.trim().toUpperCase() || "MAGO";
-            
             if(role === 'ADMIN') {
-                const pass = document.getElementById('admin-pass').value;
-                if(pass !== "SquidGamesOrion15") return notify("❌ PASSWORD INCORRECTO");
+                if(document.getElementById('admin-pass').value !== "SquidGamesOrion15") return alert("Error");
                 U.role = 'ADMIN'; localStorage.setItem('os_role', 'ADMIN');
-                switchView('view-admin'); initAdmin(); return;
+            } else {
+                U.id = "u" + Date.now(); U.role = role;
+                localStorage.setItem('os_id', U.id); localStorage.setItem('os_role', role);
+                db.ref('players/'+U.id).set({ n: name, st: "ALIVE", q: false });
             }
-
-            U.id = "u" + Date.now(); U.role = role;
-            localStorage.setItem('os_id', U.id); localStorage.setItem('os_role', role);
-            if(role === 'PLAYER') db.ref('players/'+U.id).set({ n: name, st: "ALIVE", q: false, num: Math.floor(Math.random()*400+1) });
             route();
         }
 
         function route() {
-            if(!U.role) return switchView('view-login');
-            if(U.role === 'ADMIN') return (switchView('view-admin'), initAdmin());
-            if(U.role === 'VIP' || U.st === 'DEAD') return (switchView('view-vip'), initVIP());
-            switchView('view-player'); initPlayer();
-        }
-
-        function switchView(id) {
             document.querySelectorAll('.view').forEach(v => v.classList.remove('active-view'));
-            document.getElementById(id).classList.add('active-view');
+            if(U.role === 'ADMIN') { document.getElementById('view-admin').classList.add('active-view'); initAdmin(); }
+            else { document.getElementById('view-player').classList.add('active-view'); initPlayer(); }
         }
 
-        // --- ADMIN ---
         function initAdmin() {
             db.ref('state/game').on('value', s => { 
-                let g = s.val() || 'ESPERA'; document.getElementById('a-game').innerText = g;
-                document.getElementById('admin-luz-ctrl').style.display = (g === 'LUZ ROJA') ? 'grid' : 'none';
-            });
-            db.ref('players').on('value', s => {
-                let a=0, d=0; s.forEach(c => { if(c.val().st === 'ALIVE') a++; else d++; });
-                document.getElementById('a-alive').innerText = a; document.getElementById('a-dead').innerText = d;
+                let g = s.val() || 'ESPERA';
+                document.getElementById('admin-luz-ctrl').style.display = (g === 'LUZ ROJA') ? 'block' : 'none';
             });
         }
-        function adminGame(g) { db.ref('state').update({ game: g, light: 'ROJO' }); notify("Juego: " + g); }
+
+        function adminGame(g) { db.ref('state').update({ game: g, light: 'ROJO' }); }
         function dbSet(p, v) { db.ref(p).set(v); }
-        function reviveAll() { db.ref('players').once('value', s => s.forEach(c => db.ref('players/'+c.key+'/st').set('ALIVE'))); notify("✨ REVIVIDOS"); }
-        function killSlow() { db.ref('players').once('value', s => s.forEach(c => { if(c.val().st==='ALIVE' && !c.val().q) db.ref('players/'+c.key+'/st').set('DEAD'); })); }
 
-        // --- VIP ---
-        function initVIP() {
-            db.ref('state/game').on('value', s => document.getElementById('v-game').innerText = s.val());
-            db.ref('players').on('value', s => {
-                let a=0, d=0; s.forEach(c => { if(c.val().st === 'ALIVE') a++; else d++; });
-                document.getElementById('v-alive').innerText = a; document.getElementById('v-dead').innerText = d;
-                if(U.role !== 'ADMIN' && U.st === 'DEAD') document.getElementById('view-vip').style.background = "#200";
-            });
-        }
-
-        // --- PLAYER ---
         function initPlayer() {
             db.ref('state').on('value', snap => {
                 const s = snap.val() || {game:'ESPERA', light:'ROJO'};
-                if(window.lg !== s.game) { U.prog = 0; U.q = false; window.lg = s.game; db.ref('players/'+U.id+'/q').set(false); }
                 render(s.game, s.light);
             });
-            db.ref('players/'+U.id+'/st').on('value', s => { if(s.val()==='DEAD') { U.st='DEAD'; route(); } });
+            db.ref('players/'+U.id+'/st').on('value', s => { if(s.val()==='DEAD') { alert("ELIMINADO"); location.reload(); } });
+            db.ref('players/'+U.id+'/q').on('value', s => { if(s.val()===true) U.q = true; });
         }
 
         function render(g, l) {
-            if(U.q) return document.getElementById('p-canvas').innerHTML = "<h1 style='color:var(--gd)'>CALIFICADO</h1>";
-            const v = document.getElementById('p-canvas'); document.getElementById('p-game-title').innerText = g;
-            
+            const v = document.getElementById('p-canvas');
+            document.getElementById('p-game-title').innerText = g;
+            if(U.q) { v.innerHTML = "<h1>CALIFICADO</h1>"; return; }
+
             if(g === 'LUZ ROJA') {
-                v.innerHTML = `<div class="luz ${l==='VERDE'?'luz-verde':'luz-roja'}"></div><button onclick="moveL('${l}')">AVANZAR (${U.prog}%)</button>`;
+                v.innerHTML = `<div class="luz ${l==='VERDE'?'luz-verde':'luz-roja'}"></div><button onclick="moveL('${l}')">AVANZAR</button>`;
             } else if(g === 'DALGONA') {
-                v.innerHTML = `<button onmousedown="sD()" onmouseup="eD()" style="height:100px;">MANTENER 4s</button>`;
+                v.innerHTML = `<button id="dalgona-btn">MANTENER PRESIONADO 4 SEGUNDOS</button>`;
+                const btn = document.getElementById('dalgona-btn');
+                // IMPORTANTE: Eventos pointer para que funcione en móviles
+                btn.onpointerdown = sD;
+                btn.onpointerup = eD;
+                btn.onpointerleave = eD;
             } else if(g === 'TIPEO') {
-                v.innerHTML = `<input id="sp" placeholder="EXPECTO PATRONUM"><button onclick="checkT()">LANZAR</button>`;
-            } else {
-                v.innerHTML = "<h3>ESPERA AL GUARDIÁN...</h3>";
-            }
+                v.innerHTML = `<input id="sp" placeholder="ESCRIBE EL HECHIZO"><button onclick="checkT()">LANZAR</button>`;
+            } else { v.innerHTML = "ESPERANDO..."; }
         }
 
-        function moveL(l) { if(l === 'ROJO') die(); else { U.prog += 5; if(U.prog >= 100) win(); else render('LUZ ROJA', l); } }
-        let td; function sD() { td = Date.now(); } function eD() { let df = (Date.now()-td)/1000; if(df>=3.8 && df<=4.2) win(); else die(); }
-        function checkT() { if(document.getElementById('sp').value.toUpperCase()==="EXPECTO PATRONUM") win(); else die(); }
-        function die() { db.ref('players/'+U.id).update({st:'DEAD'}); }
-        function win() { U.q = true; db.ref('players/'+U.id).update({q:true}); route(); }
+        function sD(e) { 
+            e.preventDefault();
+            td = Date.now(); 
+            document.getElementById('dalgona-btn').classList.add('pressing');
+        }
 
-        window.onload = route;
+        function eD(e) { 
+            if(!td) return;
+            let diff = (Date.now() - td) / 1000;
+            td = null;
+            document.getElementById('dalgona-btn').classList.remove('pressing');
+            if(diff >= 3.8 && diff <= 4.2) { db.ref('players/'+U.id).update({q:true}); } 
+            else { db.ref('players/'+U.id).update({st:'DEAD'}); }
+        }
+
+        function moveL(l) { if(l === 'ROJO') db.ref('players/'+U.id).update({st:'DEAD'}); }
+        function checkT() { if(document.getElementById('sp').value.toUpperCase()==="EXPECTO PATRONUM") db.ref('players/'+U.id).update({q:true}); else db.ref('players/'+U.id).update({st:'DEAD'}); }
+
+        if(U.role) route();
     </script>
 </body>
 </html>
