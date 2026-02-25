@@ -3,158 +3,333 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ORION SQUID GAMES 2.0 | THE CORE</title>
+    <title>ORION SYSTEM | COMPETITIVE EDITION</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <style>
-        :root { --pk: #ff2e63; --gr: #00ff41; --gd: #ffd700; --bk: #050505; --rd: #ff0000; }
-        body { background: var(--bk); color: white; font-family: 'Courier New', monospace; margin: 0; display: flex; flex-direction: column; align-items: center; padding: 20px; min-height: 100vh; overflow-x: hidden; }
-        .card { background: rgba(255,255,255,0.05); border: 1px solid #333; border-radius: 10px; padding: 20px; width: 100%; max-width: 600px; margin-bottom: 20px; box-sizing: border-box; backdrop-filter: blur(5px); z-index: 10; }
-        .logo { font-size: 2.5rem; letter-spacing: 12px; text-shadow: 0 0 15px var(--pk); text-align: center; cursor: pointer; }
-        button { width: 100%; padding: 15px; margin: 5px 0; background: var(--pk); border: none; color: white; font-weight: bold; cursor: pointer; border-radius: 5px; text-transform: uppercase; transition: 0.2s; }
-        button:hover { transform: scale(1.02); box-shadow: 0 0 10px var(--pk); }
-        button:disabled { background: #222; color: #555; }
-        #game-viewport { min-height: 300px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; border: 1px dashed #444; margin: 15px 0; padding: 15px; }
-        .luz { width: 80px; height: 80px; border-radius: 50%; margin: 10px; border: 4px solid #222; }
-        .roja { background: var(--rd); box-shadow: 0 0 40px var(--rd); }
-        .verde { background: var(--gr); box-shadow: 0 0 40px var(--gr); }
-        .grid-glass { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; }
-        .glass-btn { height: 80px; background: rgba(0,255,255,0.1); border: 1px solid cyan; }
-        #admin-panel { border: 2px solid var(--rd); display: none; background: #1a0000; }
-        .dead-flash { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(255,0,0,0.4); display:none; z-index:1000; pointer-events:none; }
-        .vip-card { border-color: var(--gd); background: linear-gradient(to bottom, #000, #1a0033); }
+        :root { --pk: #ff2e63; --gr: #00ff41; --gd: #ffd700; --bk: #070707; --rd: #ff0000; --bl: #00e5ff; }
+        body { background: var(--bk); color: white; font-family: 'Courier New', monospace; margin: 0; padding: 10px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; overflow-x: hidden; }
+        
+        /* UTILIDADES VISUALES */
+        .card { background: rgba(20,20,20,0.8); border: 1px solid #333; border-radius: 8px; padding: 20px; width: 100%; max-width: 700px; margin-bottom: 15px; box-sizing: border-box; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+        .logo { font-size: 2rem; letter-spacing: 10px; text-shadow: 0 0 10px var(--pk); text-align: center; cursor: pointer; margin-bottom: 5px; }
+        button { width: 100%; padding: 12px; margin: 5px 0; background: var(--pk); border: none; color: white; font-weight: bold; cursor: pointer; border-radius: 4px; text-transform: uppercase; transition: 0.2s; }
+        button:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 0 15px var(--pk); }
+        button:disabled { background: #333; color: #666; cursor: not-allowed; }
+        input, select { width: 100%; padding: 12px; background: #111; color: var(--bl); border: 1px solid #444; margin-bottom: 10px; box-sizing: border-box; }
+        
+        /* SISTEMA DE PISTAS */
+        #clue-banner { background: rgba(0, 229, 255, 0.1); border-left: 4px solid var(--bl); padding: 10px; margin-bottom: 15px; display: none; color: var(--bl); font-size: 0.9rem; }
+        
+        /* ARENA DE JUEGO */
+        #game-viewport { min-height: 250px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; border: 1px solid #444; padding: 20px; background: #0a0a0a; position: relative; }
+        .alive-tag { color: var(--gr); border: 1px solid var(--gr); padding: 2px 8px; border-radius: 12px; font-size: 0.8rem; }
+        
+        /* PANEL ADMIN (SUPERIOR) */
+        #admin-panel { border: 2px solid var(--rd); display: none; background: #110000; }
+        .admin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .player-list { max-height: 200px; overflow-y: auto; font-size: 0.8rem; background: #000; padding: 10px; border: 1px solid #333; }
+        .p-row { display: flex; justify-content: space-between; margin-bottom: 5px; border-bottom: 1px solid #222; padding-bottom: 5px; }
+        .btn-kill { background: var(--rd); padding: 2px 5px; font-size: 0.7rem; width: auto; }
+        
+        /* JUEGOS ESPECÍFICOS */
+        .spell-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; }
+        .spell-btn { background: #1a1a1a; border: 1px solid #444; font-size: 0.7rem; color: #ccc; }
+        .spell-btn:hover { border-color: var(--pk); color: white; }
+        
+        .dead-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(255,0,0,0.8); display:none; z-index:9999; animation: fadeOut 1.5s forwards; pointer-events:none; }
+        @keyframes fadeOut { 0% {opacity:1;} 100% {opacity:0;} }
     </style>
 </head>
 <body>
 
-<div class="dead-flash" id="fx"></div>
+<div class="dead-overlay" id="fx-death"></div>
 
-<header onclick="handleAdmin()">
+<header onclick="openAdmin()">
     <div class="logo">🔺⚪🟦</div>
-    <p style="text-align:center; font-size:0.7rem; color:var(--pk)">SISTEMA DE CONTROL ORIÓN</p>
 </header>
 
+<div id="clue-banner" class="card" style="width: 100%; max-width: 700px;">
+    <strong>PISTA DEL GUARDIÁN:</strong> <span id="clue-text">...</span>
+</div>
+
 <section id="auth" class="card">
-    <input type="text" id="nick" placeholder="TU NOMBRE" style="width:100%; padding:10px; margin-bottom:10px; background:#111; color:white; border:1px solid #444;">
-    <button onclick="init()">INICIAR VINCULACIÓN</button>
+    <h3 style="text-align:center; color:var(--pk);">IDENTIFICACIÓN</h3>
+    <input type="text" id="nick" placeholder="INGRESA TU NOMBRE REAL">
+    <button onclick="joinSystem()">ENTRAR A LA PLATAFORMA</button>
 </section>
 
 <section id="arena" class="card" style="display:none;">
-    <div style="display:flex; justify-content:space-between; border-bottom:1px solid #333; padding-bottom:5px;">
-        <h2 id="num">#---</h2>
-        <span id="st" style="color:var(--gr)">● VIVO</span>
+    <div style="display:flex; justify-content:space-between; margin-bottom: 10px;">
+        <h3 id="p-name" style="margin:0;">JUGADOR</h3>
+        <span id="st" class="alive-tag">VIVO</span>
     </div>
+    
     <div id="game-viewport">
-        <h2 id="title">ESPERANDO...</h2>
-        <div id="visuals"></div>
-        <p id="desc"></p>
-        <div id="actions" style="width:100%"></div>
+        <h2 id="g-title" style="color:var(--pk); margin-top:0;">SALA DE ESPERA</h2>
+        <p id="g-desc" style="font-size:0.9rem; color:#888;">El juego comenzará cuando el Guardián lo decida.</p>
+        <div id="g-action" style="width:100%; margin-top:15px;"></div>
+    </div>
+    
+    <div style="text-align:center; margin-top:10px;">
+        <small style="color:#555">Jugadores conectados: <span id="live-count">0</span></small>
     </div>
 </section>
 
 <section id="admin-panel" class="card">
-    <h3 style="color:var(--rd)">PANEL DEL GUARDIÁN</h3>
-    <button onclick="setG('Luz Roja, Luz Verde')">1. LUZ ROJA/VERDE</button>
-    <button onclick="setG('Puente de Cristal')">2. PUENTE CRISTAL</button>
-    <button onclick="setG('Duelo de Magia')">3. DUELO MÁGICO</button>
-    <button onclick="setG('Las Canicas')">4. CANICAS</button>
-    <button onclick="setG('Galleta Dalgona')">5. LA GALLETA</button>
-    <button onclick="setG('Tira y Afloja')">6. CUERDA</button>
-    <button onclick="setG('Laberinto')">7. LABERINTO</button>
-    <button onclick="setG('Trivia Mortal')">8. TRIVIA HP</button>
-    <button onclick="setG('Sacrificio')">9. SACRIFICIO</button>
-    <button onclick="setG('El Juego del Calamar')">10. FINAL</button>
-    <button onclick="setG('SALA DE ESPERA')" style="background:#333">RESET</button>
+    <h3 style="color:var(--rd); text-align:center; margin-top:0;">CONSOLA MASTER</h3>
+    
+    <div style="background:#222; padding:10px; margin-bottom:10px;">
+        <input type="text" id="admin-clue" placeholder="Escribir pista a todos...">
+        <button onclick="sendClue()" style="background:var(--bl); color:black;">ENVIAR PISTA GLOBAL</button>
+    </div>
+
+    <div class="admin-grid">
+        <button onclick="setGame('SALA DE ESPERA', 1)">0. PAUSA / ESPERA</button>
+        <button onclick="setGame('LUZ ROJA VERDE', 1)">1. LUZ ROJA (FÁCIL)</button>
+        <button onclick="setGame('LUZ ROJA VERDE', 3)">2. LUZ ROJA (DIFÍCIL)</button>
+        <button onclick="setGame('PUENTE CRISTAL', 2)">3. PUENTE CRISTAL</button>
+        <button onclick="setGame('DUELO PvP', 3)">4. DUELO DE MAGIA (PvP)</button>
+    </div>
+    
+    <button onclick="resolvePvP()" style="background:var(--gd); color:black; margin-top:10px;">⚡ RESOLVER DUELOS PvP ⚡</button>
+
+    <h4 style="color:var(--rd); margin-bottom:5px;">CONTROL DE JUGADORES</h4>
+    <div class="player-list" id="admin-players">Cargando almas...</div>
 </section>
 
-<audio id="s-shot" src="https://www.myinstants.com/media/sounds/awp-shot.mp3"></audio>
-<audio id="s-doll" src="https://www.myinstants.com/media/sounds/squid-game-luz-roja-luz-verde.mp3"></audio>
-
 <script>
+// ==========================================
+// CONFIGURACIÓN FIREBASE (NO TOCAR)
+// ==========================================
 const config = { databaseURL: "https://squid-games-24283-default-rtdb.firebaseio.com/" };
 firebase.initializeApp(config);
 const db = firebase.database();
-let uid = localStorage.getItem('o_id'), clks = 0, curL = "R", dead = false;
 
-function handleAdmin(){ clks++; if(clks==5) document.getElementById('admin-panel').style.display='block'; }
-function setG(n){ db.ref('game').set(n); }
+let myId = localStorage.getItem('ultra_id');
+let adminClicks = 0;
+let isDead = false;
+let globalLevel = 1;
 
-function init(){
-    const n = document.getElementById('nick').value; if(!n) return;
-    uid = "u_" + Date.now(); localStorage.setItem('o_id', uid);
-    db.ref('players/'+uid).set({ name:n, num:Math.floor(Math.random()*456+1).toString().padStart(3,'0'), st:"ALIVE" });
-    start();
+// ==========================================
+// SISTEMA DE CONTROL ADMIN
+// ==========================================
+function openAdmin() {
+    adminClicks++;
+    if(adminClicks === 7) {
+        document.getElementById('admin-panel').style.display = 'block';
+        listenAdminPlayers();
+    }
 }
 
-function start(){
-    document.getElementById('auth').style.display='none';
-    document.getElementById('arena').style.display='block';
-    db.ref('game').on('value', s => { updateGame(s.val()); });
-    db.ref('players/'+uid).on('value', s => { 
-        const d = s.val(); document.getElementById('num').innerText = "#"+d.num;
-        if(d.st=="DEAD") killUI();
+function setGame(name, level) {
+    db.ref('system_state').update({ game: name, difficulty: level, timestamp: Date.now() });
+}
+
+function sendClue() {
+    const text = document.getElementById('admin-clue').value;
+    db.ref('system_state').update({ clue: text });
+    document.getElementById('admin-clue').value = "";
+}
+
+function listenAdminPlayers() {
+    db.ref('players').on('value', snap => {
+        const list = document.getElementById('admin-players');
+        list.innerHTML = "";
+        snap.forEach(child => {
+            const p = child.val();
+            const color = p.status === "DEAD" ? "red" : "lime";
+            list.innerHTML += `
+                <div class="p-row">
+                    <span style="color:${color}">${p.name} [${p.action || 'Nada'}]</span>
+                    <button class="btn-kill" onclick="killPlayer('${child.key}')">MATAR</button>
+                </div>`;
+        });
     });
 }
 
-function killUI(){
-    dead = true; document.getElementById('fx').style.display='block';
-    document.getElementById('st').innerText = "● ELIMINADO"; document.getElementById('st').style.color = "var(--rd)";
-    document.getElementById('arena').classList.add('vip-card');
-    document.getElementById('game-viewport').innerHTML = "<h1 style='color:var(--gd)'>VIP LOUNGE</h1><p>Has caído. Observa el final.</p>";
-    document.getElementById('s-shot').play();
+function killPlayer(uid) { db.ref('players/' + uid).update({ status: 'DEAD' }); }
+
+// ==========================================
+// EL MOTOR PvP: RESOLUCIÓN DE DUELOS MAGIA
+// ==========================================
+// Reglas: Ataque vence Sigilo. Defensa vence Ataque. Sigilo vence Defensa.
+function resolvePvP() {
+    db.ref('players').once('value', snap => {
+        let alive = [];
+        snap.forEach(child => {
+            if(child.val().status !== "DEAD") alive.push({ id: child.key, data: child.val() });
+        });
+        
+        if(alive.length < 2) return alert("No hay suficientes jugadores vivos.");
+
+        // Emparejamiento aleatorio
+        alive.sort(() => Math.random() - 0.5);
+        
+        for(let i=0; i<alive.length; i+=2) {
+            if(!alive[i+1]) break; // Si sobra uno, se salva esta ronda
+            
+            let p1 = alive[i], p2 = alive[i+1];
+            let act1 = p1.data.action || "Nada", act2 = p2.data.action || "Nada";
+            
+            let loser = null;
+            if(act1 === act2) {
+                // Empate, muere uno al azar por castigo de inactividad
+                loser = Math.random() > 0.5 ? p1.id : p2.id;
+            } else if (
+                (act1 === "Ataque" && act2 === "Sigilo") ||
+                (act1 === "Defensa" && act2 === "Ataque") ||
+                (act1 === "Sigilo" && act2 === "Defensa") ||
+                (act1 === "Maldicion") // Maldición mata pero tiene riesgo, simplificado aquí
+            ) {
+                loser = p2.id;
+            } else {
+                loser = p1.id;
+            }
+            
+            if(loser) killPlayer(loser);
+        }
+        
+        setGame('RESULTADOS PVP', 1);
+        sendClue("Los duelos han concluido. Miren quién sigue en pie.");
+        
+        // Reset acciones
+        alive.forEach(p => db.ref('players/'+p.id).update({ action: "" }));
+    });
 }
 
-function updateGame(g){
-    if(dead) return;
-    const v = document.getElementById('visuals'), d = document.getElementById('desc'), a = document.getElementById('actions');
-    const t = document.getElementById('title'); t.innerText = g; v.innerHTML = ""; a.innerHTML = "";
+// ==========================================
+// SISTEMA DEL JUGADOR
+// ==========================================
+function joinSystem() {
+    const name = document.getElementById('nick').value;
+    if(!name) return;
     
-    switch(g){
-        case "Luz Roja, Luz Verde":
-            v.innerHTML = '<div id="l" class="luz roja"></div>';
-            a.innerHTML = '<button onmousedown="move()">AVANZAR</button>';
-            loopLuz(); break;
-        case "Puente de Cristal":
-            d.innerText = "Elige un lado. Uno es cristal templado, el otro papel.";
-            a.innerHTML = '<div class="grid-glass"><button class="glass-btn" onclick="glass(1)">IZQ</button><button class="glass-btn" onclick="glass(2)">DER</button></div>';
-            break;
-        case "Duelo de Magia":
-            d.innerText = "Lanza tu hechizo más rápido que el oponente.";
-            a.innerHTML = '<button onclick="spell()">EXPELLIARMUS!</button>'; break;
-        case "Las Canicas":
-            d.innerText = "¿Par o Impar? Apuesta tu vida.";
-            a.innerHTML = '<button onclick="marbles(1)">PAR</button><button onclick="marbles(2)">IMPAR</button>'; break;
-        case "Galleta Dalgona":
-            d.innerText = "Mantén presionado el botón. Si lo sueltas antes o después de tiempo, mueres.";
-            a.innerHTML = '<button onmousedown="startG()" onmouseup="endG()">EXTRAER FIGURA</button>'; break;
-        default: d.innerText = "Esperando al Guardián...";
+    myId = "user_" + Date.now() + Math.floor(Math.random()*1000);
+    localStorage.setItem('ultra_id', myId);
+    
+    db.ref('players/' + myId).set({ name: name, status: "ALIVE", action: "" });
+    startClient();
+}
+
+function startClient() {
+    document.getElementById('auth').style.display = 'none';
+    document.getElementById('arena').style.display = 'block';
+    
+    // Escuchar estado global
+    db.ref('system_state').on('value', snap => {
+        const state = snap.val() || { game: 'SALA DE ESPERA', clue: '', difficulty: 1 };
+        globalLevel = state.difficulty;
+        
+        // Manejar Pistas
+        if(state.clue && state.clue !== "") {
+            document.getElementById('clue-banner').style.display = 'block';
+            document.getElementById('clue-text').innerText = state.clue;
+        } else {
+            document.getElementById('clue-banner').style.display = 'none';
+        }
+        
+        renderGame(state.game);
+    });
+    
+    // Escuchar mi vida
+    db.ref('players/' + myId).on('value', snap => {
+        const data = snap.val();
+        if(data) {
+            document.getElementById('p-name').innerText = data.name;
+            if(data.status === "DEAD" && !isDead) executeDeath();
+        }
+    });
+    
+    // Contador de vivos
+    db.ref('players').on('value', snap => {
+        let count = 0;
+        snap.forEach(c => { if(c.val().status === "ALIVE") count++; });
+        document.getElementById('live-count').innerText = count;
+    });
+}
+
+function executeDeath() {
+    isDead = true;
+    document.getElementById('fx-death').style.display = 'block';
+    document.getElementById('st').innerText = "ELIMINADO";
+    document.getElementById('st').style.color = "var(--rd)";
+    document.getElementById('st').style.borderColor = "var(--rd)";
+    document.getElementById('game-viewport').innerHTML = `
+        <h2 style="color:var(--rd)">HAS CAÍDO</h2>
+        <p>Tu partida ha terminado. Silencio absoluto.</p>`;
+}
+
+// ==========================================
+// RENDERIZADO DE JUEGOS DINÁMICO
+// ==========================================
+function renderGame(game) {
+    if(isDead) return;
+    const title = document.getElementById('g-title');
+    const desc = document.getElementById('g-desc');
+    const act = document.getElementById('g-action');
+    
+    title.innerText = game;
+    act.innerHTML = "";
+    clearInterval(window.luzInterval); // Limpiar juegos previos
+    
+    if(game === "LUZ ROJA VERDE") {
+        desc.innerText = globalLevel > 1 ? "DIFÍCIL: El rojo aparece más rápido." : "FÁCIL: Avanza en verde.";
+        act.innerHTML = `<div id="luz-color" style="width:80px;height:80px;border-radius:50%;margin:0 auto 15px;background:var(--rd);"></div>
+                         <button onmousedown="checkLuz()">AVANZAR</button>`;
+        startLuz();
+    } 
+    else if(game === "PUENTE CRISTAL") {
+        desc.innerText = "Solo uno de los dos cristales resistirá tu peso.";
+        act.innerHTML = `<button onclick="stepBridge('L')" style="background:rgba(0,255,255,0.2); border:1px solid cyan;">IZQUIERDA</button>
+                         <button onclick="stepBridge('R')" style="background:rgba(0,255,255,0.2); border:1px solid cyan;">DERECHA</button>`;
+    }
+    else if(game === "DUELO PvP") {
+        desc.innerText = "Selecciona tu estrategia. Te enfrentarás a un rival al azar. Ataque > Sigilo | Defensa > Ataque | Sigilo > Defensa.";
+        act.innerHTML = `
+            <div class="spell-grid">
+                <button class="spell-btn" onclick="sendAction('Ataque')">ATAQUE<br><small>(Expelliarmus...)</small></button>
+                <button class="spell-btn" onclick="sendAction('Defensa')">DEFENSA<br><small>(Petrificus...)</small></button>
+                <button class="spell-btn" onclick="sendAction('Sigilo')">SIGILO<br><small>(Rictusempra...)</small></button>
+            </div>
+            <p id="pvp-status" style="font-size:0.8rem; color:var(--bl);"></p>`;
+    }
+    else {
+        desc.innerText = "Esperando al Guardián...";
     }
 }
 
-function loopLuz(){
-    if(dead || document.getElementById('title').innerText != "Luz Roja, Luz Verde") return;
-    const l = document.getElementById('l');
-    if(curL == "R") { 
-        curL="V"; l.className="luz verde"; document.getElementById('s-doll').play(); 
-        setTimeout(loopLuz, 4000);
-    } else { 
-        curL="R"; l.className="luz roja"; 
-        setTimeout(loopLuz, Math.random()*3000+2000);
+// --- LOGICA LUZ ROJA ---
+let isGreen = false;
+function startLuz() {
+    let speed = globalLevel > 1 ? 1500 : 3000;
+    window.luzInterval = setInterval(() => {
+        isGreen = !isGreen;
+        const div = document.getElementById('luz-color');
+        if(div) div.style.background = isGreen ? 'var(--gr)' : 'var(--rd)';
+    }, Math.random() * speed + 1000);
+}
+function checkLuz() { if(!isGreen) db.ref('players/'+myId).update({status: 'DEAD'}); }
+
+// --- LOGICA PUENTE ---
+function stepBridge(side) {
+    // Si la dificultad es alta, hay 60% de morir
+    let deathChance = globalLevel > 1 ? 0.6 : 0.4;
+    if(Math.random() < deathChance) db.ref('players/'+myId).update({status: 'DEAD'});
+    else {
+        document.getElementById('g-desc').innerText = "¡Paso seguro! Espera a la siguiente orden.";
+        document.getElementById('g-action').innerHTML = "";
     }
 }
 
-function move(){ if(curL=="R") die(); }
-function glass(n){ if(Math.random() < 0.5) die(); else alert("¡Seguro!"); }
-function spell(){ if(Math.random() < 0.2) die(); else alert("Hechizo lanzado con éxito!"); }
-function marbles(n){ if(Math.random() < 0.5) die(); else alert("¡Ganaste las canicas!"); }
+// --- LOGICA PvP ---
+function sendAction(type) {
+    db.ref('players/'+myId).update({ action: type });
+    document.getElementById('pvp-status').innerText = "Estrategia fijada: [" + type + "]. Esperando resolución del Guardián...";
+}
 
-let gTime;
-function startG(){ gTime = Date.now(); }
-function endG(){ let diff = Date.now() - gTime; if(diff < 2000 || diff > 4000) die(); else alert("¡Galleta perfecta!"); }
-
-function die(){ db.ref('players/'+uid).update({st:"DEAD"}); }
-
-window.onload = () => { if(uid) start(); };
+// Auto-login
+window.onload = () => { if(myId) startClient(); };
 </script>
 </body>
 </html>
