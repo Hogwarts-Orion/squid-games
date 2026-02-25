@@ -3,145 +3,294 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ORION SQUID GAMES | MASTER</title>
+    <title>ORION SQUID GAMES | PRO EDITION</title>
+    
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
     <style>
         :root { --pk: #ff2e63; --gr: #00ff41; --gd: #ffd700; --bk: #050505; --rd: #ff003c; --bl: #08d9d6; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { background: var(--bk); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 10px; min-height: 100vh; display: flex; flex-direction: column; align-items: center; }
-        .card { background: rgba(20,20,20,0.95); border: 1px solid #333; border-radius: 12px; padding: 20px; width: 100%; max-width: 480px; box-shadow: 0 10px 30px rgba(0,0,0,0.8); text-align: center; }
-        .logo { font-size: 1.8rem; letter-spacing: 8px; text-shadow: 0 0 10px var(--pk); margin-bottom: 15px; font-weight: 900; }
-        .btn-reset { position: fixed; right: 15px; top: 15px; background: rgba(255,255,255,0.1); border: 1px solid #444; border-radius: 50%; width: 45px; height: 45px; display: flex; justify-content: center; align-items: center; z-index: 10000; cursor: pointer; }
-        input { width: 100%; padding: 14px; margin-bottom: 10px; background: #000; color: white; border: 1px solid #444; border-radius: 8px; text-align: center; }
-        button { width: 100%; padding: 14px; margin: 5px 0; background: transparent; border: 2px solid var(--pk); color: var(--pk); font-weight: bold; border-radius: 8px; text-transform: uppercase; cursor: pointer; }
-        button:active { background: var(--pk); color: white; }
-        .luz { width: 70px; height: 70px; border-radius: 50%; margin: 15px auto; border: 4px solid #111; }
+        body { background: var(--bk); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 10px; min-height: 100vh; overflow-x: hidden; user-select: none; touch-action: manipulation; }
+
+        .card { background: rgba(15,15,15,0.95); border: 1px solid #333; border-radius: 10px; padding: 15px; margin-bottom: 10px; width: 100%; max-width: 500px; margin-left: auto; margin-right: auto; box-shadow: 0 5px 15px rgba(0,0,0,0.5); text-align: center; }
+        .logo { font-size: 1.8rem; letter-spacing: 8px; text-shadow: 0 0 10px var(--pk); color: white; margin-bottom: 15px; font-weight: 900; }
+        
+        .btn-reset { position: fixed; right: 10px; top: 10px; font-size: 1.2rem; cursor: pointer; background: rgba(255,255,255,0.1); border-radius: 50%; width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; border: 1px solid #444; z-index: 1000; }
+        .btn-reset:active { background: var(--rd); }
+
+        input { width: 100%; padding: 12px; margin-bottom: 10px; background: #111; color: white; border: 1px solid #444; border-radius: 6px; font-size: 1rem; text-align: center; text-transform: uppercase; }
+        input:focus { outline: none; border-color: var(--pk); }
+
+        button { width: 100%; padding: 14px; margin: 4px 0; background: transparent; border: 1px solid var(--pk); color: var(--pk); font-size: 0.9rem; font-weight: bold; cursor: pointer; border-radius: 6px; text-transform: uppercase; transition: 0.1s; }
+        button:active { background: var(--pk); color: white; transform: scale(0.98); }
+        .btn-fill { background: var(--pk); color: white; }
+        .btn-gold { border-color: var(--gd); color: var(--gd); }
+        .btn-danger { border-color: var(--rd); background: rgba(255,0,0,0.1); color: var(--rd); }
+        .btn-success { border-color: var(--gr); background: rgba(0,255,0,0.1); color: var(--gr); }
+
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+        .grid-3 button { padding: 10px 5px; font-size: 0.75rem; }
+
+        .stats-row { display: flex; justify-content: space-between; align-items: center; background: #111; padding: 10px; border-radius: 6px; margin-bottom: 10px; font-family: monospace; font-size: 1.1rem; border: 1px solid #333; }
+        
+        .luz { width: 80px; height: 80px; border-radius: 50%; margin: 10px auto; border: 4px solid #111; }
         .luz-verde { background: var(--gr); box-shadow: 0 0 30px var(--gr); }
         .luz-roja { background: var(--rd); box-shadow: 0 0 30px var(--rd); }
+        .bar-bg { width: 100%; height: 15px; background: #222; border-radius: 8px; overflow: hidden; margin: 10px 0; }
+        .bar-fill { height: 100%; background: var(--gr); width: 0%; transition: 0.2s; }
+
+        .dead-screen { background: radial-gradient(circle, #4a0000 0%, #000 100%) !important; border-color: var(--rd) !important; }
+        .win-screen { border-color: var(--gd) !important; box-shadow: 0 0 20px rgba(255,215,0,0.2); }
+        .shake { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; }
+        @keyframes shake { 10%, 90% { transform: translate3d(-3px, 0, 0); } 20%, 80% { transform: translate3d(3px, 0, 0); } 30%, 50%, 70% { transform: translate3d(-6px, 0, 0); } 40%, 60% { transform: translate3d(6px, 0, 0); } }
+
         .view { display: none; }
-        .active-view { display: block !important; }
-        #dalgona-btn { height: 120px; font-size: 1.2rem; transition: background 0.1s; touch-action: none; }
-        #dalgona-btn.pressing { background: var(--gd); color: black; border-color: var(--gd); }
+        .active-view { display: block; }
+
+        #toast-container { position: fixed; top: 15px; left: 50%; transform: translateX(-50%); z-index: 10000; display: flex; flex-direction: column; gap: 10px; pointer-events: none; width: 90%; max-width: 400px; }
+        .toast { background: rgba(15, 15, 15, 0.95); border: 1px solid #333; color: white; padding: 15px; border-radius: 8px; font-weight: bold; text-align: center; box-shadow: 0 5px 20px rgba(0,0,0,0.8); animation: slideDown 0.3s ease-out forwards; }
+        .toast.success { border-color: var(--gr); color: var(--gr); }
+        .toast.error { border-color: var(--rd); color: var(--rd); }
+        @keyframes slideDown { from { top: -50px; opacity: 0; } to { top: 0; opacity: 1; } }
+        .toast-fade { animation: fadeOut 0.4s forwards; }
+        @keyframes fadeOut { to { opacity: 0; transform: translateY(-20px); } }
+
+        /* Botones Especiales de Mantener Presionado */
+        #btn-dalgona.pressing, #btn-caliz.pressing { background: var(--gd); color: black; border-color: var(--gd); }
     </style>
 </head>
 <body>
 
-    <div class="btn-reset" onclick="localStorage.clear(); location.reload();">🔄</div>
-    <div class="logo">🔺⚪🟦</div>
+    <div id="toast-container"></div>
+    <div class="btn-reset" onclick="hardReset()" title="Reiniciar Sesión">🔄</div>
+
+    <audio id="snd-shot" src="https://www.myinstants.com/media/sounds/m1-garand-ping.mp3" preload="auto"></audio>
+    <audio id="snd-win" src="https://www.myinstants.com/media/sounds/level-up-sound-effect.mp3" preload="auto"></audio>
+    <audio id="snd-siren" src="https://www.myinstants.com/media/sounds/the-purge-siren.mp3" preload="auto"></audio>
+
+    <div class="logo">🔺⚪🟦<br><span style="font-size: 0.8rem; color: #888; letter-spacing: 2px;">ORION SQUID GAMES</span></div>
 
     <section id="view-login" class="card view active-view">
-        <input type="text" id="username" placeholder="TU NOMBRE">
-        <button onclick="access('PLAYER')" style="background: var(--pk); color:white;">ENTRAR A LA ARENA</button>
-        <div style="margin-top:20px; border-top: 1px solid #333; padding-top:15px;">
-            <input type="password" id="admin-pass" placeholder="PASSWORD">
-            <button onclick="access('ADMIN')" style="border-color: var(--rd); color: var(--rd);">PANEL ADMIN</button>
+        <h3 style="margin:0 0 15px 0;">SELECCIONA TU ROL</h3>
+        <input type="text" id="username" placeholder="TU NOMBRE DE MAGO">
+        <button class="btn-fill" onclick="login('PLAYER')">ENTRAR A LA ARENA</button>
+        <button class="btn-gold" onclick="login('VIP')">GRADA VIP (ESPECTADOR)</button>
+        <div style="border-top: 1px solid #333; margin-top: 15px; padding-top: 15px;">
+            <input type="password" id="admin-pass" placeholder="PASSWORD GUARDIÁN">
+            <button class="btn-danger" onclick="login('ADMIN')">PANEL DE CONTROL</button>
         </div>
     </section>
 
     <section id="view-player" class="card view">
-        <h2 id="p-game-title">ESPERA</h2>
-        <div id="p-canvas"></div>
+        <div class="stats-row">
+            <span id="p-tag" style="color:var(--bl); font-weight:bold;">#000</span>
+            <span id="p-status" style="color:var(--gr); font-weight:bold;">VIVO</span>
+        </div>
+        <h2 id="p-game-title" style="color:var(--pk); font-size:1.4rem; margin:10px 0;">SALA DE ESPERA</h2>
+        <p id="p-game-desc" style="font-size:0.85rem; color:#aaa; min-height:35px; margin:0 0 15px 0;"></p>
+        <div id="p-canvas" style="min-height: 180px;"></div>
     </section>
 
-    <section id="view-admin" class="card view">
-        <h3>MANDO GLOBAL</h3>
-        <div id="admin-luz-ctrl" style="display:none; margin-bottom:10px;">
-            <button onclick="dbSet('state/light', 'VERDE')" style="color:var(--gr)">VERDE</button>
-            <button onclick="dbSet('state/light', 'ROJO')" style="color:var(--rd)">ROJA</button>
+    <section id="view-admin" class="card view" style="border-color:var(--rd);">
+        <h3 style="margin:0 0 10px 0; color:var(--rd);">🛡️ MANDO GLOBAL</h3>
+        <div class="stats-row">
+            <span style="color:var(--gr);">V: <b id="a-alive">0</b></span>
+            <span style="color:var(--gd);">ACTUAL: <b id="a-game">ESPERA</b></span>
+            <span style="color:var(--rd);">M: <b id="a-dead">0</b></span>
         </div>
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:5px;">
-            <button onclick="adminGame('LUZ ROJA')">L.ROJA</button>
-            <button onclick="adminGame('DALGONA')">DALGONA</button>
-            <button onclick="adminGame('TIPEO')">TIPEO</button>
-            <button onclick="adminGame('ESPERA')">RESET</button>
+        <div id="admin-contextual" style="background:rgba(255,255,255,0.05); padding:10px; border-radius:6px; margin-bottom:10px; display:none;">
+            <div class="grid-2">
+                <button class="btn-success" onclick="setGlobal('light', 'VERDE')">Luz Verde</button>
+                <button class="btn-danger" onclick="setGlobal('light', 'ROJO')">Luz Roja</button>
+            </div>
         </div>
+        <p style="font-size:0.8rem; color:#888; margin:5px 0; text-align:left;">INICIAR PRUEBA:</p>
+        <div class="grid-3">
+            <button onclick="setGame('ESPERA')" style="color:#aaa; border-color:#555;">0. Reset</button>
+            <button onclick="setGame('LUZ ROJA')">1. L. Roja</button>
+            <button onclick="setGame('DALGONA')">2. Dalgona</button>
+            <button onclick="setGame('PUENTE')">3. Puente</button>
+            <button onclick="setGame('TIPEO')">4. Tipeo</button>
+            <button onclick="setGame('CANICAS')">5. Canicas</button>
+            <button onclick="setGame('RULETA')">6. Ruleta</button>
+            <button onclick="setGame('REFLEJOS')">7. Reflejos</button>
+            <button onclick="setGame('CÁLIZ')">8. Cáliz</button>
+        </div>
+        <p style="font-size:0.8rem; color:#888; margin:15px 0 5px 0; text-align:left;">HERRAMIENTAS DIVINAS:</p>
+        <div class="grid-2">
+            <button class="btn-danger" onclick="killUnqualified()">☠️ Matar Lentos</button>
+            <button class="btn-success" onclick="reviveAll()">✨ Revivir Todos</button>
+            <button style="border-color:#555; color:#aaa;" onclick="fireSound('snd-siren')">🚨 Sirena</button>
+            <button style="border-color:#555; color:#aaa;" onclick="fireSound('snd-shot')">🔫 Disparo</button>
+        </div>
+    </section>
+
+    <section id="view-vip" class="card view">
+        <h2 id="v-title" style="color:var(--gd);">ZONA VIP</h2>
+        <div class="stats-row" style="flex-direction:column; gap:10px; padding:20px;">
+            <div style="font-size:1.5rem; color:var(--gr);">VIVOS: <b id="v-alive">0</b></div>
+            <div style="font-size:1.5rem; color:var(--rd);">ELIMINADOS: <b id="v-dead">0</b></div>
+        </div>
+        <p style="color:#888;">Juego actual: <span id="v-game" style="color:white;">...</span></p>
     </section>
 
     <script>
-        const fbCfg = { databaseURL: "https://squid-games-24283-default-rtdb.firebaseio.com/" };
-        firebase.initializeApp(fbCfg);
+        const config = { databaseURL: "https://squid-games-24283-default-rtdb.firebaseio.com/" };
+        if (!firebase.apps.length) firebase.initializeApp(config);
         const db = firebase.database();
 
-        let U = { id: localStorage.getItem('os_id'), role: localStorage.getItem('os_role'), st: 'ALIVE', q: false };
-        let td; // Timer para Dalgona
+        let P = { id: localStorage.getItem('osg_id'), role: localStorage.getItem('osg_role'), status: 'ALIVE', prog: 0, qual: false };
+        let G = { name: "ESPERA", light: "ROJO" };
 
-        function access(role) {
-            const name = document.getElementById('username').value.trim().toUpperCase() || "MAGO";
+        function showNotification(msg, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div'); toast.className = `toast ${type}`; toast.innerText = msg;
+            container.appendChild(toast);
+            setTimeout(() => { toast.classList.add('toast-fade'); setTimeout(() => toast.remove(), 400); }, 3000);
+        }
+
+        function hardReset() { localStorage.clear(); location.reload(); }
+        function switchView(viewId) { document.querySelectorAll('.view').forEach(v => v.classList.remove('active-view')); document.getElementById(viewId).classList.add('active-view'); }
+        function playS(id) { let s = document.getElementById(id); s.currentTime=0; s.play().catch(()=>{}); }
+        function unlockAudio() { ['snd-shot', 'snd-win', 'snd-siren'].forEach(id => { let s = document.getElementById(id); s.volume = 0; s.play().then(()=> { s.pause(); s.currentTime = 0; s.volume = 1; }).catch(()=>{}); }); }
+
+        // --- LOGIN ---
+        function login(role) {
+            const name = document.getElementById('username').value.trim().toUpperCase() || "ANÓNIMO";
             if(role === 'ADMIN') {
-                if(document.getElementById('admin-pass').value !== "SquidGamesOrion15") return alert("Error");
-                U.role = 'ADMIN'; localStorage.setItem('os_role', 'ADMIN');
-            } else {
-                U.id = "u" + Date.now(); U.role = role;
-                localStorage.setItem('os_id', U.id); localStorage.setItem('os_role', role);
-                db.ref('players/'+U.id).set({ n: name, st: "ALIVE", q: false });
+                if(document.getElementById('admin-pass').value !== "SquidGamesOrion15") return showNotification("❌ Password Incorrecto", "error");
+                localStorage.setItem('osg_role', 'ADMIN'); P.role = "ADMIN"; 
+                switchView('view-admin'); initAdmin(); return showNotification("🛡️ Admin Listo");
             }
-            route();
+            if(role === 'PLAYER' && name === "ANÓNIMO") return showNotification("⚠️ Escribe tu nombre", "error");
+
+            unlockAudio();
+            P.id = "u_" + Date.now(); P.role = role; P.status = "ALIVE";
+            const num = Math.floor(Math.random()*456 + 1).toString().padStart(3,'0');
+            localStorage.setItem('osg_id', P.id); localStorage.setItem('osg_role', role);
+
+            if(role === 'PLAYER') db.ref('players/' + P.id).set({ n: name, num: num, st: "ALIVE", q: false });
+            routeUser();
         }
 
-        function route() {
-            document.querySelectorAll('.view').forEach(v => v.classList.remove('active-view'));
-            if(U.role === 'ADMIN') { document.getElementById('view-admin').classList.add('active-view'); initAdmin(); }
-            else { document.getElementById('view-player').classList.add('active-view'); initPlayer(); }
+        function routeUser() {
+            if(!P.role) return;
+            if(P.role === 'ADMIN') { switchView('view-admin'); initAdmin(); return; }
+            if(P.role === 'VIP' || P.status === 'DEAD') {
+                switchView('view-vip');
+                if(P.status === 'DEAD') { document.getElementById('view-vip').classList.add('dead-screen'); document.getElementById('v-title').innerText = "EL PURGATORIO"; document.getElementById('v-title').style.color = "var(--rd)"; }
+                initVIP();
+            } else {
+                switchView('view-player');
+                db.ref('players/' + P.id).once('value', s => { if(s.exists()) document.getElementById('p-tag').innerText = "#" + s.val().num; });
+                initPlayer();
+            }
         }
 
+        // --- ADMIN ---
         function initAdmin() {
             db.ref('state/game').on('value', s => { 
-                let g = s.val() || 'ESPERA';
-                document.getElementById('admin-luz-ctrl').style.display = (g === 'LUZ ROJA') ? 'block' : 'none';
+                G.name = s.val() || 'ESPERA'; document.getElementById('a-game').innerText = G.name; 
+                document.getElementById('admin-contextual').style.display = (G.name === 'LUZ ROJA') ? 'block' : 'none';
             });
+            db.ref('players').on('value', s => { let a=0, d=0; s.forEach(c => { if(c.val().st === 'ALIVE') a++; else d++; }); document.getElementById('a-alive').innerText = a; document.getElementById('a-dead').innerText = d; });
+        }
+        function setGame(g) { db.ref('state').update({ game: g, light: "ROJO" }); showNotification(`🎮 Juego: ${g}`); }
+        function setGlobal(key, val) { db.ref('state/' + key).set(val); }
+        function fireSound(snd) { db.ref('state/snd').set({ id: snd, t: Date.now() }); showNotification(`🔊 Sonido enviado`); }
+        function killUnqualified() { db.ref('players').once('value', snap => { snap.forEach(child => { if(child.val().st === 'ALIVE' && !child.val().q) db.ref('players/'+child.key+'/st').set('DEAD'); }); }); showNotification("☠️ Lentos eliminados", "error"); }
+        function reviveAll() { db.ref('players').once('value', snap => { snap.forEach(c => { db.ref('players/'+c.key+'/st').set('ALIVE'); }); }); showNotification("✨ Todos revividos"); }
+
+        // --- VIP ---
+        function initVIP() {
+            db.ref('state/game').on('value', s => document.getElementById('v-game').innerText = s.val() || 'ESPERA');
+            db.ref('players').on('value', s => { let a=0, d=0; s.forEach(c => { if(c.val().st === 'ALIVE') a++; else d++; }); document.getElementById('v-alive').innerText = a; document.getElementById('v-dead').innerText = d; });
         }
 
-        function adminGame(g) { db.ref('state').update({ game: g, light: 'ROJO' }); }
-        function dbSet(p, v) { db.ref(p).set(v); }
-
+        // --- JUGADOR ---
         function initPlayer() {
+            db.ref('state/snd').on('value', s => { if(s.val()) playS(s.val().id); });
             db.ref('state').on('value', snap => {
-                const s = snap.val() || {game:'ESPERA', light:'ROJO'};
-                render(s.game, s.light);
+                const s = snap.val(); if(!s) return;
+                G.name = s.game; G.light = s.light;
+
+                if(window.lastG !== G.name) {
+                    P.prog = 0; P.qual = false; window.lastG = G.name;
+                    document.getElementById('view-player').classList.remove('win-screen');
+                    db.ref('players/'+P.id+'/q').set(false);
+                    clearTimeout(window.refTimer);
+                }
+                renderUI();
             });
-            db.ref('players/'+U.id+'/st').on('value', s => { if(s.val()==='DEAD') { alert("ELIMINADO"); location.reload(); } });
-            db.ref('players/'+U.id+'/q').on('value', s => { if(s.val()===true) U.q = true; });
+            db.ref('players/' + P.id + '/st').on('value', s => {
+                if(s.val() === 'DEAD' && P.status !== 'DEAD') {
+                    P.status = 'DEAD'; playS('snd-shot'); document.body.classList.add('shake');
+                    setTimeout(() => { document.body.classList.remove('shake'); routeUser(); }, 1000);
+                }
+            });
         }
 
-        function render(g, l) {
-            const v = document.getElementById('p-canvas');
-            document.getElementById('p-game-title').innerText = g;
-            if(U.q) { v.innerHTML = "<h1>CALIFICADO</h1>"; return; }
+        function renderUI() {
+            if(P.status === 'DEAD') return;
+            if(P.qual) return showWin();
 
-            if(g === 'LUZ ROJA') {
-                v.innerHTML = `<div class="luz ${l==='VERDE'?'luz-verde':'luz-roja'}"></div><button onclick="moveL('${l}')">AVANZAR</button>`;
-            } else if(g === 'DALGONA') {
-                v.innerHTML = `<button id="dalgona-btn">MANTENER PRESIONADO 4 SEGUNDOS</button>`;
-                const btn = document.getElementById('dalgona-btn');
-                // IMPORTANTE: Eventos pointer para que funcione en móviles
-                btn.onpointerdown = sD;
-                btn.onpointerup = eD;
-                btn.onpointerleave = eD;
-            } else if(g === 'TIPEO') {
-                v.innerHTML = `<input id="sp" placeholder="ESCRIBE EL HECHIZO"><button onclick="checkT()">LANZAR</button>`;
-            } else { v.innerHTML = "ESPERANDO..."; }
+            const c = document.getElementById('p-canvas');
+            document.getElementById('p-game-title').innerText = G.name;
+            const d = document.getElementById('p-game-desc');
+
+            switch(G.name) {
+                case "LUZ ROJA":
+                    d.innerText = "Meta: 100 Pasos. Luz verde avanzas.";
+                    c.innerHTML = `<div class="luz ${G.light === 'VERDE' ? 'luz-verde' : 'luz-roja'}"></div>
+                        <div class="bar-bg"><div class="bar-fill" style="width:${P.prog}%"></div></div>
+                        <button class="btn-fill" onclick="actLuz()" style="height:70px; font-size:1.5rem;">AVANZAR</button>`;
+                    break;
+                case "DALGONA":
+                    d.innerText = "Meta: Mantén pulsado entre 3.8 y 4.2 seg.";
+                    c.innerHTML = `<button class="btn-gold" id="btn-dalgona" style="height:100px; font-size:1.2rem; margin-top:20px; touch-action:none;">👉 MANTENER 👈</button>`;
+                    const bD = document.getElementById('btn-dalgona'); bD.onpointerdown = sDal; bD.onpointerup = eDal; bD.onpointerleave = eDal;
+                    break;
+                case "PUENTE":
+                    d.innerText = `Cruza 5 baldosas (50% de Letalidad).\nPASO: ${P.prog}/5`;
+                    c.innerHTML = `<div class="grid-2" style="margin-top:20px;">
+                        <button onclick="actPte()" style="height:90px; border-color:var(--bl); color:var(--bl);">IZQ</button>
+                        <button onclick="actPte()" style="height:90px; border-color:var(--bl); color:var(--bl);">DER</button>
+                    </div>`;
+                    break;
+                case "RULETA":
+                    d.innerText = `Gatilla 5 veces. 1/6 probabilidad de morir.\nINTENTO: ${P.prog}/5`;
+                    c.innerHTML = `<button class="btn-danger" onclick="actRul()" style="height:100px; font-size:1.5rem; margin-top:20px;">🔫 JALAR GATILLO</button>`;
+                    break;
+                case "TIPEO":
+                    d.innerText = "Escribe: EXPECTO PATRONUM";
+                    c.innerHTML = `<input type="text" id="i-spell" autocomplete="off" style="margin-top:15px;">
+                        <button class="btn-fill" onclick="actTip()">LANZAR HECHIZO</button>`;
+                    break;
+                case "CANICAS":
+                    d.innerText = `Adivina Par o Impar contra el sistema.\nINTENTO: ${P.prog}/3`;
+                    c.innerHTML = `<div class="grid-2" style="margin-top:20px;">
+                        <button onclick="actCan(0)" style="height:90px;">PARES</button>
+                        <button onclick="actCan(1)" style="height:90px;">NONES</button>
+                    </div>`;
+                    break;
+                case "REFLEJOS":
+                    d.innerText = "Toca el escudo que aparezca en menos de 1 segundo.";
+                    c.innerHTML = `<button id="btn-reflejo" onclick="actRef()" style="height:100px; font-size:2rem; background:var(--bl); color:black; display:none; margin-top:20px;">🛡️ PROTEGO</button>
+                    <p id="reflejo-wait" style="color:var(--pk); font-weight:bold; font-size:1.2rem; margin-top:40px;">ATENTO...</p>`;
+                    startRef();
+                    break;
+                case "CÁLIZ":
+                    d.innerText = "Supervivencia final. Mantén presionado sin soltar.";
+                    c.innerHTML = `<button class="btn-gold" id="btn-caliz" style="height:120px; font-size:1.2rem; margin-top:20px; touch-action:none;">🏆 SOSTENER CÁLIZ</button>`;
+                    const bC = document.getElementById('btn-caliz'); bC.onpointerdown = sCal; bC.onpointerup = eCal; bC.onpointerleave = eCal;
+                    break;
+                default:
+                    d.innerText = "Espera indicaciones del Guardián.";
+                    c.innerHTML = `<div style="font-size:4rem; margin-top:20px; animation: pulse 2s infinite; color:#555;">⏳</div>`;
+            }
         }
 
-        function sD(e) { 
-            e.preventDefault();
-            td = Date.now(); 
-            document.getElementById('dalgona-btn').classList.add('pressing');
-        }
-
-        function eD(e) { 
-            if(!td) return;
-            let diff = (Date.now() - td) / 1000;
-            td = null;
-            document.getElementById('dalgona-btn').classList.remove('pressing');
-            if(diff >= 3.8 && diff <= 4.2) { db.ref('players/'+U.id).update({q:true}); } 
-            else { db.ref('players/'+U.id).update({st:'DEAD'}); }
-        }
-
-        function moveL(l) { if(l === 'ROJO') db.ref('players/'+U.id).update({st:'DEAD'}); }
-        function checkT() { if(document.getElementById('sp').value.toUpperCase()==="EXPECTO PATRONUM") db.ref('players/'+U.id).update({q:true}); else db.ref('players/'+U.id).update({st:'DEAD'}); }
-
-        if(U.role) route();
-    </script>
-</body>
-</html>
+        function die() { db.ref('players/' + P.id).update({ st: "DEAD" }); }
+        function win() { P.qual = true; db.ref('players/' 
