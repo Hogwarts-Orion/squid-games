@@ -1,0 +1,153 @@
+/* 1. VARIABLES DE COLOR - Para cambiar todo el sitio desde aquí */
+:root {
+    --pink-squid: #ff2e63;    /* Rosa neón de los guardias */
+    --green-live: #00ff41;    /* Verde de jugador vivo */
+    --gold-champ: #ffd700;    /* Dorado para el campeón Fran */
+    --dark-bg: #0a0a0a;       /* Negro casi absoluto */
+    --gray-card: rgba(255, 255, 255, 0.05); /* Fondo translúcido */
+    --text-white: #e0e0e0;
+}
+
+/* 2. CONFIGURACIÓN BASE */
+body {
+    background-color: var(--dark-bg);
+    color: var(--text-white);
+    font-family: 'Courier New', Courier, monospace; /* Fuente tipo sistema/militar */
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* 3. TÍTULOS Y LOGO */
+header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.logo {
+    font-size: 2.5rem;
+    letter-spacing: 15px;
+    margin-bottom: 10px;
+    color: white;
+}
+
+.orion {
+    color: var(--pink-squid);
+    text-shadow: 0 0 15px var(--pink-squid);
+    font-weight: bold;
+}
+
+/* 4. CONTADOR REGRESIVO */
+.countdown-container {
+    background: var(--gray-card);
+    border: 1px solid var(--pink-squid);
+    padding: 25px;
+    border-radius: 8px;
+    text-align: center;
+    width: 100%;
+    max-width: 500px;
+    margin-bottom: 30px;
+    box-shadow: 0 0 20px rgba(255, 46, 99, 0.1);
+}
+
+#timer {
+    font-size: 2.5rem;
+    color: var(--pink-squid);
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+/* 5. FORMULARIO DE REGISTRO */
+.registration-form {
+    background: var(--gray-card);
+    padding: 25px;
+    border-radius: 8px;
+    width: 100%;
+    max-width: 500px;
+    border-left: 5px solid var(--pink-squid);
+    margin-bottom: 40px;
+}
+
+input, select, button {
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0;
+    background: #1a1a1a;
+    border: 1px solid #333;
+    color: white;
+    border-radius: 4px;
+}
+
+button {
+    background: var(--pink-squid);
+    border: none;
+    color: white;
+    font-weight: bold;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+button:hover {
+    background: #e21b4d;
+    transform: scale(1.03);
+    box-shadow: 0 0 15px var(--pink-squid);
+}
+
+/* 6. ACADEMIA DE HECHIZOS (BOTONES PEQUEÑOS) */
+.spell-system {
+    width: 100%;
+    max-width: 500px;
+    text-align: center;
+}
+
+.spell-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.spell-btn {
+    background: transparent;
+    border: 1px solid #444;
+    font-size: 0.85rem;
+    margin: 0;
+}
+
+.spell-btn:hover {
+    border-color: var(--pink-squid);
+    color: var(--pink-squid);
+}
+
+/* 7. EL ALTAR DEL CAMPEÓN (FRAN) */
+.hall-of-fame {
+    margin: 40px 0;
+    text-align: center;
+    padding: 20px;
+    border: 2px solid var(--gold-champ);
+    border-radius: 50%; /* Lo hace circular */
+    width: 160px;
+    height: 160px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
+}
+
+.champion-name {
+    color: var(--gold-champ);
+    font-size: 1.4rem;
+    font-weight: bold;
+    text-shadow: 0 0 10px var(--gold-champ);
+}
+
+/* 8. RESPONSIVE (PARA CELULARES) */
+@media (max-width: 600px) {
+    .logo { font-size: 1.8rem; letter-spacing: 8px; }
+    #timer { font-size: 1.8rem; }
+    .spell-grid { grid-template-columns: 1fr; }
+}
+
