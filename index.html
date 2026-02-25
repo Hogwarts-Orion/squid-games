@@ -3,277 +3,191 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SQUID GAMES ORION 2.0 | THE PLATFORM</title>
+    <title>ORION SQUID GAMES 2.0 | REAL-TIME</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
     <style>
         :root {
-            --pink: #ff2e63;
-            --green: #00ff41;
-            --gold: #ffd700;
-            --dark: #050505;
-            --gray: rgba(255, 255, 255, 0.05);
-            --red: #ff0000;
+            --pink: #ff2e63; --green: #00ff41; --gold: #ffd700;
+            --dark: #050505; --red: #ff0000; --vip: #1a0033;
         }
 
         body {
-            background-color: var(--dark);
-            color: white;
-            font-family: 'Courier New', Courier, monospace;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-            min-height: 100vh;
-            overflow-x: hidden;
+            background-color: var(--dark); color: white;
+            font-family: 'Courier New', monospace; margin: 0;
+            display: flex; flex-direction: column; align-items: center;
+            padding: 20px; min-height: 100vh; overflow-x: hidden;
         }
 
-        /* EFECTOS DE FONDO */
-        .scanline {
-            width: 100%; height: 100%;
-            position: fixed; top: 0; left: 0;
-            background: linear-gradient(to bottom, rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(to right, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
-            background-size: 100% 2px, 3px 100%;
-            pointer-events: none; z-index: 100;
-        }
-
-        header { text-align: center; z-index: 10; margin-bottom: 20px; }
-        .logo { font-size: 3rem; letter-spacing: 15px; text-shadow: 0 0 20px var(--pink); margin: 0; }
-        .orion-text { color: var(--pink); }
-
+        /* DISEÑO DE INTERFAZ */
         .card {
-            background: var(--gray);
-            border: 1px solid #333;
-            border-radius: 10px;
-            padding: 25px;
-            width: 100%;
-            max-width: 600px;
-            box-sizing: border-box;
-            backdrop-filter: blur(5px);
-            margin-bottom: 20px;
-            z-index: 10;
+            background: rgba(255,255,255,0.05); border: 1px solid #333;
+            border-radius: 10px; padding: 20px; width: 100%;
+            max-width: 600px; margin-bottom: 20px; position: relative;
         }
 
-        /* INTERFAZ DE JUGADOR */
-        #game-interface { border-left: 5px solid var(--green); display: none; }
-        .status-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; padding-bottom: 10px; }
-        .alive-tag { color: var(--green); border: 1px solid var(--green); padding: 5px 15px; border-radius: 20px; font-size: 0.8rem; animation: pulse 2s infinite; }
+        .logo { font-size: 2.5rem; letter-spacing: 10px; text-shadow: 0 0 15px var(--pink); text-align: center; }
         
-        /* BOTONES Y ENTRADAS */
-        input, select, button {
-            width: 100%; padding: 15px; margin: 10px 0;
-            background: #111; border: 1px solid #444; color: white;
-            font-family: inherit; font-size: 1rem; border-radius: 5px;
+        button {
+            width: 100%; padding: 15px; margin: 5px 0;
+            background: var(--pink); border: none; color: white;
+            font-weight: bold; cursor: pointer; border-radius: 5px;
         }
 
-        button { background: var(--pink); border: none; cursor: pointer; font-weight: bold; text-transform: uppercase; transition: 0.3s; }
-        button:hover { background: #e21b4d; box-shadow: 0 0 20px var(--pink); transform: scale(1.02); }
-        button:disabled { background: #222; color: #555; cursor: not-allowed; }
+        button:disabled { background: #222; color: #555; }
 
-        /* JUEGOS DEMO */
-        .game-box {
-            border: 2px dashed #444;
-            padding: 20px;
-            margin-top: 20px;
-            text-align: center;
+        /* ESTADOS */
+        .status-alive { color: var(--green); border: 1px solid var(--green); padding: 5px; }
+        .status-dead { color: var(--red); border: 1px solid var(--red); padding: 5px; filter: grayscale(1); }
+
+        /* CONTENEDOR DE JUEGOS */
+        #game-viewport {
+            min-height: 200px; border: 2px dashed #444;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            margin: 20px 0; padding: 10px;
         }
 
-        .spell-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .spell-btn { background: rgba(255, 46, 99, 0.1); border: 1px solid var(--pink); color: var(--pink); font-size: 0.8rem; }
-
-        /* EL ALTAR */
-        .altar {
-            width: 150px; height: 150px; border: 2px solid var(--gold);
-            border-radius: 50%; display: flex; flex-direction: column;
-            justify-content: center; align-items: center;
-            box-shadow: 0 0 30px rgba(255, 215, 0, 0.2); margin: 30px 0;
-        }
-        .gold-text { color: var(--gold); text-shadow: 0 0 10px var(--gold); }
-
-        /* PANEL GUARDIÁN (OCULTO) */
-        #guardian-panel { border: 2px solid var(--red); display: none; }
-        .danger-btn { background: var(--red); }
-
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
+        .vip-mode { background: linear-gradient(to bottom, #050505, var(--vip)); border-color: var(--gold); }
     </style>
 </head>
 <body>
 
-    <div class="scanline"></div>
-
     <header>
-        <p class="logo">🔺 ⚪ 🟦</p>
-        <h1>SQUID GAMES <span class="orion-text">ORION</span></h1>
+        <p class="logo">🔺⚪🟦</p>
+        <h1>ORION <span style="color:var(--pink)">SYSTEM</span></h1>
     </header>
 
-    <audio id="bg-music" loop>
-        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-15.mp3" type="audio/mpeg">
-    </audio>
+    <div id="auth-screen" class="card">
+        <h3>IDENTIFICACIÓN REQUERIDA</h3>
+        <input type="text" id="username" placeholder="NOMBRE DEL ALUMNO" style="width:95%; padding:10px; margin-bottom:10px;">
+        <button onclick="joinGame()">ENTRAR A LA ARENA</button>
+    </div>
 
-    <section id="registration-section" class="card">
-        <h3>ACCESO AL SISTEMA</h3>
-        <input type="text" id="reg-name" placeholder="IDENTIFICACIÓN (NOMBRE)">
-        <select id="reg-house">
-            <option value="Gryffindor">GRYFFINDOR</option>
-            <option value="Slytherin">SLYTHERIN</option>
-            <option value="Hufflepuff">HUFFLEPUFF</option>
-            <option value="Ravenclaw">RAVENCLAW</option>
-        </select>
-        <button onclick="registerPlayer()">INICIAR VINCULACIÓN</button>
-        <p style="font-size: 0.7rem; color: #666; text-align: center; margin-top: 10px;">
-            AL REGISTRARSE, ACEPTA QUE SU VIDA PERTENECE A ORIÓN.
-        </p>
-    </section>
-
-    <section id="game-interface" class="card">
-        <div class="status-header">
-            <div>
-                <h2 id="display-num" style="margin:0;">#000</h2>
-                <small id="display-name">ASPIRANTE</small>
-            </div>
-            <div id="life-indicator" class="alive-tag">CONECTADO / VIVO</div>
+    <div id="main-arena" class="card" style="display:none;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h2 id="p-number">#000</h2>
+            <span id="p-status" class="status-alive">VIVO</span>
+        </div>
+        
+        <div id="game-viewport">
+            <h3 id="game-title">SALA DE ESPERA</h3>
+            <p id="game-instruction">Esperando al Guardián...</p>
+            <div id="game-content"></div>
         </div>
 
-        <div class="game-box">
-            <h4 id="game-title">SALA DE ESPERA</h4>
-            <p id="game-desc" style="font-size: 0.9rem; color: #aaa;">
-                El Guardián aún no ha iniciado la prueba. Entrena tus hechizos abajo.
-            </p>
-            <div id="interactive-area">
-                <button id="main-action-btn" class="danger-btn" style="display:none;" onclick="handleAction()">¡PULSAR!</button>
+        <div id="spell-practice">
+            <small style="color:var(--pink)">DUELOS RÁPIDOS</small>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:5px;">
+                <button onclick="cast('Expelliarmus')" style="font-size:10px; background:none; border:1px solid var(--pink)">Expelliarmus</button>
+                <button onclick="cast('Crucio')" style="font-size:10px; background:none; border:1px solid var(--pink)">Crucio</button>
             </div>
         </div>
-
-        <div class="spell-system">
-            <p style="font-size: 0.7rem; color: var(--pink);">SISTEMA DE DUELOS (PRÁCTICA)</p>
-            <div class="spell-grid">
-                <button class="spell-btn" onclick="cast('Expelliarmus')">Expelliarmus</button>
-                <button class="spell-btn" onclick="cast('Sectumsempra')">Sectumsempra</button>
-                <button class="spell-btn" onclick="cast('Avada Kedavra')">Avada Kedavra</button>
-                <button class="spell-btn" onclick="cast('Protego')">Protego</button>
-            </div>
-            <div id="spell-log" style="font-size: 0.8rem; margin-top:10px; color: var(--pink); min-height: 1.2rem;"></div>
-        </div>
-
-        <button onclick="showGuardian()" style="background:none; color:#222; border:none; margin-top:40px; font-size:0.5rem;">MODO GUARDIÁN</button>
-    </section>
-
-    <section id="guardian-panel" class="card">
-        <h3 style="color: var(--red);">CONSOLE: THE GUARD</h3>
-        <p>Control de masacre para 30+ alumnos</p>
-        <button onclick="triggerGame('Luz Roja, Luz Verde')">INICIAR JUEGO 1</button>
-        <button onclick="triggerGame('El Puente de Cristal')">INICIAR JUEGO 2</button>
-        <button class="danger-btn" onclick="eliminateSelf()">ELIMINAR JUGADOR ACTUAL</button>
-        <button onclick="resetAll()" style="background:#444;">RESETEAR TODO EL SISTEMA</button>
-        <button onclick="closeGuardian()" style="background:none; border:1px solid #444;">CERRAR PANEL</button>
-    </section>
-
-    <section class="altar">
-        <span style="font-size: 0.6rem;">WINNER 1.0</span>
-        <span class="gold-text" style="font-weight: bold; font-size: 1.2rem;">FRAN</span>
-        <span class="gold-text">#007</span>
-    </section>
+    </div>
 
     <script>
-        // LÓGICA DE REGISTRO Y PERSISTENCIA
-        function registerPlayer() {
-            const name = document.getElementById('reg-name').value;
-            if(!name) return alert("Identificación requerida.");
+        // CONFIGURACIÓN DE FIREBASE
+        const firebaseConfig = {
+            databaseURL: "https://squid-games-24283-default-rtdb.firebaseio.com/"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        let myId = null;
+
+        // UNIRSE AL JUEGO
+        function joinGame() {
+            const name = document.getElementById('username').value;
+            if(!name) return alert("Pon tu nombre");
             
-            const num = Math.floor(Math.random() * 456 + 1).toString().padStart(3, '0');
-            localStorage.setItem('squid_user', name);
-            localStorage.setItem('squid_num', num);
-            localStorage.setItem('squid_status', 'ALIVE');
-
-            // Intentar play de música al interactuar
-            document.getElementById('bg-music').play().catch(()=>{});
+            myId = "user_" + Math.floor(Math.random() * 10000);
+            const playerNum = Math.floor(Math.random() * 456 + 1).toString().padStart(3, '0');
             
-            load();
+            db.ref('players/' + myId).set({
+                name: name,
+                number: playerNum,
+                status: "ALIVE"
+            });
+
+            document.getElementById('auth-screen').style.display = 'none';
+            document.getElementById('main-arena').style.display = 'block';
+            document.getElementById('p-number').innerText = "#" + playerNum;
+            
+            listenToGame();
         }
 
-        function load() {
-            const name = localStorage.getItem('squid_user');
-            const num = localStorage.getItem('squid_num');
-            const status = localStorage.getItem('squid_status');
-
-            if(name) {
-                document.getElementById('registration-section').style.display = 'none';
-                document.getElementById('game-interface').style.display = 'block';
-                document.getElementById('display-num').innerText = "#" + num;
-                document.getElementById('display-name').innerText = name.toUpperCase();
-
-                if(status === 'ELIMINADO') {
-                    setEliminated();
+        // ESCUCHAR CAMBIOS DEL GUARDIÁN
+        function listenToGame() {
+            // Escuchar estado del jugador (por si lo matas)
+            db.ref('players/' + myId).on('value', snap => {
+                const data = snap.val();
+                if(data.status === "DEAD") {
+                    setVipMode();
                 }
-            }
+            });
+
+            // Escuchar qué juego activa el Guardián
+            db.ref('current_game').on('value', snap => {
+                const gameType = snap.val();
+                loadGame(gameType);
+            });
         }
 
-        function setEliminated() {
-            localStorage.setItem('squid_status', 'ELIMINADO');
-            document.body.style.filter = "grayscale(100%)";
-            document.getElementById('life-indicator').innerText = "ELIMINADO";
-            document.getElementById('life-indicator').style.color = "var(--red)";
-            document.getElementById('life-indicator').style.borderColor = "var(--red)";
-            document.getElementById('game-status').innerText = "HAS SIDO ELIMINADO DEL JUEGO.";
-            document.getElementById('game-desc').innerText = "Tu camino en Orión ha terminado.";
-            document.getElementById('interactive-area').innerHTML = "💀";
-        }
-
-        // CONTROL DE JUEGOS (SIMULACIÓN PARA QUE LOS VEAS)
-        function triggerGame(name) {
+        // MOTOR DE 10 JUEGOS
+        function loadGame(type) {
+            const container = document.getElementById('game-content');
             const title = document.getElementById('game-title');
-            const desc = document.getElementById('game-desc');
-            const btn = document.getElementById('main-action-btn');
+            container.innerHTML = "";
+            title.innerText = type;
 
-            title.innerText = name;
-            btn.style.display = "block";
-
-            if(name === 'Luz Roja, Luz Verde') {
-                desc.innerText = "Pulsa el botón cuando el título esté en VERDE. Si pulsas en ROJO, mueres.";
-                startLuzRoja();
-            } else {
-                desc.innerText = "Elige una baldosa en tu pantalla. El 50% caerá al vacío.";
+            switch(type) {
+                case "Luz Roja":
+                    container.innerHTML = "<button onclick='die()'>MOVERSE</button><p>Si pulsas mueres</p>";
+                    break;
+                case "Puente Cristal":
+                    container.innerHTML = "<button onclick='checkStep(1)'>Izquierda</button><button onclick='checkStep(2)'>Derecha</button>";
+                    break;
+                case "Canicas":
+                    container.innerHTML = "<input type='number' id='bet' placeholder='Apuesta'><button onclick='cast()'>Lanzar</button>";
+                    break;
+                case "Duelo":
+                    container.innerHTML = "<p>Usa tus hechizos ahora!</p>";
+                    break;
+                case "Galleta":
+                    container.innerHTML = "<p>Dibuja el patrón sin salirte!</p>";
+                    break;
+                case "Cuerda":
+                    container.innerHTML = "<button onclick='pull()'>TIRAR!!!</button>";
+                    break;
+                case "Escondite":
+                    container.innerHTML = "<p>Busca un refugio en el mapa</p>";
+                    break;
+                case "Trívía":
+                    container.innerHTML = "<button>A</button><button>B</button>";
+                    break;
+                case "Sacrificio":
+                    container.innerHTML = "<p>Vota a quién eliminar</p>";
+                    break;
+                case "Final":
+                    container.innerHTML = "<h3>DUELO FINAL POR EL ORO</h3>";
+                    break;
+                default:
+                    container.innerHTML = "<p>Esperando inicio...</p>";
             }
-            closeGuardian();
         }
 
-        function startLuzRoja() {
-            let title = document.getElementById('game-title');
-            setInterval(() => {
-                if(title.style.color === 'rgb(0, 255, 65)') {
-                    title.style.color = 'var(--red)';
-                } else {
-                    title.style.color = 'var(--green)';
-                }
-            }, 2000);
+        function die() {
+            db.ref('players/' + myId).update({status: "DEAD"});
         }
 
-        function handleAction() {
-            const title = document.getElementById('game-title');
-            if(title.style.color === 'var(--red)' || title.style.color === 'rgb(255, 0, 0)') {
-                alert("¡MOVIMIENTO DETECTADO! ELIMINADO.");
-                setEliminated();
-            } else {
-                alert("Avanzas un paso de forma segura...");
-            }
+        function setVipMode() {
+            document.getElementById('main-arena').classList.add('vip-mode');
+            document.getElementById('p-status').innerText = "VIP / MUERTO";
+            document.getElementById('p-status').className = "status-dead";
+            document.getElementById('game-viewport').innerHTML = "<h3>LOGIA VIP</h3><p>Mira a los vivos morir...</p>";
         }
 
-        // FUNCIONES DE SOPORTE
-        function cast(s) {
-            const log = document.getElementById('spell-log');
-            log.innerText = "> " + s + " ejecutado!";
-            setTimeout(() => log.innerText = "", 1500);
-        }
-
-        function eliminateSelf() {
-            setEliminated();
-            closeGuardian();
-        }
-
-        function showGuardian() { document.getElementById('guardian-panel').style.display = 'block'; }
-        function closeGuardian() { document.getElementById('guardian-panel').style.display = 'none'; }
-        function resetAll() { localStorage.clear(); location.reload(); }
-
-        window.onload = load;
+        function cast(spell) { alert("Lanzaste " + spell); }
     </script>
 </body>
 </html>
