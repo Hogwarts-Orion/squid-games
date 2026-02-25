@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ORION SQUID GAMES | PRO EDITION</title>
+    <title>ORION SQUID GAMES | MASTER EDITION</title>
     
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
@@ -13,284 +13,267 @@
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { background: var(--bk); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 10px; min-height: 100vh; overflow-x: hidden; user-select: none; touch-action: manipulation; }
 
-        .card { background: rgba(15,15,15,0.95); border: 1px solid #333; border-radius: 10px; padding: 15px; margin-bottom: 10px; width: 100%; max-width: 500px; margin-left: auto; margin-right: auto; box-shadow: 0 5px 15px rgba(0,0,0,0.5); text-align: center; }
+        .card { background: rgba(18,18,18,0.98); border: 1px solid #333; border-radius: 12px; padding: 20px; margin-bottom: 10px; width: 100%; max-width: 480px; margin-left: auto; margin-right: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.8); text-align: center; }
         .logo { font-size: 1.8rem; letter-spacing: 8px; text-shadow: 0 0 10px var(--pk); color: white; margin-bottom: 15px; font-weight: 900; }
         
-        .btn-reset { position: fixed; right: 10px; top: 10px; font-size: 1.2rem; cursor: pointer; background: rgba(255,255,255,0.1); border-radius: 50%; width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; border: 1px solid #444; z-index: 1000; }
-        .btn-reset:active { background: var(--rd); }
+        .btn-reset { position: fixed; right: 10px; top: 10px; font-size: 1.2rem; cursor: pointer; background: rgba(255,255,255,0.15); border-radius: 50%; width: 45px; height: 45px; display: flex; justify-content: center; align-items: center; border: 1px solid #555; z-index: 10000; }
 
-        input { width: 100%; padding: 12px; margin-bottom: 10px; background: #111; color: white; border: 1px solid #444; border-radius: 6px; font-size: 1rem; text-align: center; text-transform: uppercase; }
-        input:focus { outline: none; border-color: var(--pk); }
+        input { width: 100%; padding: 14px; margin-bottom: 12px; background: #000; color: white; border: 1px solid #444; border-radius: 8px; font-size: 1.1rem; text-align: center; text-transform: uppercase; }
+        input:focus { outline: none; border-color: var(--pk); box-shadow: 0 0 10px var(--pk); }
 
-        button { width: 100%; padding: 14px; margin: 4px 0; background: transparent; border: 1px solid var(--pk); color: var(--pk); font-size: 0.9rem; font-weight: bold; cursor: pointer; border-radius: 6px; text-transform: uppercase; transition: 0.1s; }
-        button:active { background: var(--pk); color: white; transform: scale(0.98); }
+        button { width: 100%; padding: 15px; margin: 5px 0; background: transparent; border: 2px solid var(--pk); color: var(--pk); font-size: 1rem; font-weight: bold; cursor: pointer; border-radius: 8px; text-transform: uppercase; transition: 0.1s; }
+        button:active { background: var(--pk); color: white; transform: scale(0.97); }
         .btn-fill { background: var(--pk); color: white; }
         .btn-gold { border-color: var(--gd); color: var(--gd); }
         .btn-danger { border-color: var(--rd); background: rgba(255,0,0,0.1); color: var(--rd); }
         .btn-success { border-color: var(--gr); background: rgba(0,255,0,0.1); color: var(--gr); }
 
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
-        .grid-3 button { padding: 10px 5px; font-size: 0.75rem; }
+        .grid-3 button { padding: 12px 2px; font-size: 0.75rem; border-width: 1px; }
 
-        .stats-row { display: flex; justify-content: space-between; align-items: center; background: #111; padding: 10px; border-radius: 6px; margin-bottom: 10px; font-family: monospace; font-size: 1.1rem; border: 1px solid #333; }
+        .stats-row { display: flex; justify-content: space-between; align-items: center; background: #111; padding: 12px; border-radius: 8px; margin-bottom: 12px; font-family: monospace; font-size: 1.1rem; border: 1px solid #333; }
         
-        .luz { width: 80px; height: 80px; border-radius: 50%; margin: 10px auto; border: 4px solid #111; }
-        .luz-verde { background: var(--gr); box-shadow: 0 0 30px var(--gr); }
-        .luz-roja { background: var(--rd); box-shadow: 0 0 30px var(--rd); }
-        .bar-bg { width: 100%; height: 15px; background: #222; border-radius: 8px; overflow: hidden; margin: 10px 0; }
+        .luz { width: 85px; height: 85px; border-radius: 50%; margin: 20px auto; border: 5px solid #111; transition: 0.1s; }
+        .luz-verde { background: var(--gr); box-shadow: 0 0 40px var(--gr); }
+        .luz-roja { background: var(--rd); box-shadow: 0 0 40px var(--rd); }
+        .bar-bg { width: 100%; height: 20px; background: #222; border-radius: 10px; overflow: hidden; margin: 15px 0; border: 1px solid #333; }
         .bar-fill { height: 100%; background: var(--gr); width: 0%; transition: 0.2s; }
 
         .dead-screen { background: radial-gradient(circle, #4a0000 0%, #000 100%) !important; border-color: var(--rd) !important; }
-        .win-screen { border-color: var(--gd) !important; box-shadow: 0 0 20px rgba(255,215,0,0.2); }
-        .shake { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; }
-        @keyframes shake { 10%, 90% { transform: translate3d(-3px, 0, 0); } 20%, 80% { transform: translate3d(3px, 0, 0); } 30%, 50%, 70% { transform: translate3d(-6px, 0, 0); } 40%, 60% { transform: translate3d(6px, 0, 0); } }
+        .win-screen { border-color: var(--gd) !important; box-shadow: 0 0 30px rgba(255,215,0,0.3); }
 
         .view { display: none; }
-        .active-view { display: block; }
+        .active-view { display: block !important; }
 
-        #toast-container { position: fixed; top: 15px; left: 50%; transform: translateX(-50%); z-index: 10000; display: flex; flex-direction: column; gap: 10px; pointer-events: none; width: 90%; max-width: 400px; }
-        .toast { background: rgba(15, 15, 15, 0.95); border: 1px solid #333; color: white; padding: 15px; border-radius: 8px; font-weight: bold; text-align: center; box-shadow: 0 5px 20px rgba(0,0,0,0.8); animation: slideDown 0.3s ease-out forwards; }
-        .toast.success { border-color: var(--gr); color: var(--gr); }
-        .toast.error { border-color: var(--rd); color: var(--rd); }
-        @keyframes slideDown { from { top: -50px; opacity: 0; } to { top: 0; opacity: 1; } }
-        .toast-fade { animation: fadeOut 0.4s forwards; }
-        @keyframes fadeOut { to { opacity: 0; transform: translateY(-20px); } }
-
-        /* Botones Especiales de Mantener Presionado */
-        #btn-dalgona.pressing, #btn-caliz.pressing { background: var(--gd); color: black; border-color: var(--gd); }
+        #toast-container { position: fixed; top: 15px; left: 50%; transform: translateX(-50%); z-index: 20000; width: 90%; max-width: 400px; pointer-events: none; }
+        .toast { background: #111; border: 1px solid var(--bl); color: white; padding: 15px; border-radius: 10px; text-align: center; margin-bottom: 10px; box-shadow: 0 10px 30px rgba(0,0,0,1); animation: slideIn 0.3s forwards; font-weight: bold; }
+        @keyframes slideIn { from { transform: translateY(-100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        
+        #btn-dalgona.pressing, #btn-caliz.pressing { background: var(--gd); color: black; border-color: var(--gd); box-shadow: 0 0 20px var(--gd); }
     </style>
 </head>
 <body>
 
     <div id="toast-container"></div>
-    <div class="btn-reset" onclick="hardReset()" title="Reiniciar Sesión">🔄</div>
+    <div class="btn-reset" onclick="hardReset()">🔄</div>
 
     <audio id="snd-shot" src="https://www.myinstants.com/media/sounds/m1-garand-ping.mp3" preload="auto"></audio>
     <audio id="snd-win" src="https://www.myinstants.com/media/sounds/level-up-sound-effect.mp3" preload="auto"></audio>
     <audio id="snd-siren" src="https://www.myinstants.com/media/sounds/the-purge-siren.mp3" preload="auto"></audio>
 
-    <div class="logo">🔺⚪🟦<br><span style="font-size: 0.8rem; color: #888; letter-spacing: 2px;">ORION SQUID GAMES</span></div>
+    <div class="logo">🔺⚪🟦</div>
 
     <section id="view-login" class="card view active-view">
-        <h3 style="margin:0 0 15px 0;">SELECCIONA TU ROL</h3>
-        <input type="text" id="username" placeholder="TU NOMBRE DE MAGO">
-        <button class="btn-fill" onclick="login('PLAYER')">ENTRAR A LA ARENA</button>
-        <button class="btn-gold" onclick="login('VIP')">GRADA VIP (ESPECTADOR)</button>
-        <div style="border-top: 1px solid #333; margin-top: 15px; padding-top: 15px;">
-            <input type="password" id="admin-pass" placeholder="PASSWORD GUARDIÁN">
-            <button class="btn-danger" onclick="login('ADMIN')">PANEL DE CONTROL</button>
+        <h3 style="margin-top:0;">SELECCIONA ROL</h3>
+        <input type="text" id="username" placeholder="TU NOMBRE">
+        <button class="btn-fill" onclick="login('PLAYER')">ENTRAR A ARENA</button>
+        <button class="btn-gold" onclick="login('VIP')">GRADA VIP</button>
+        <div style="margin-top:20px; border-top: 1px solid #333; padding-top:15px;">
+            <input type="password" id="admin-pass" placeholder="PASSWORD ADMIN">
+            <button class="btn-danger" onclick="login('ADMIN')">MODO GUARDIÁN</button>
         </div>
     </section>
 
     <section id="view-player" class="card view">
         <div class="stats-row">
-            <span id="p-tag" style="color:var(--bl); font-weight:bold;">#000</span>
+            <span id="p-tag" style="color:var(--bl);">#000</span>
             <span id="p-status" style="color:var(--gr); font-weight:bold;">VIVO</span>
         </div>
-        <h2 id="p-game-title" style="color:var(--pk); font-size:1.4rem; margin:10px 0;">SALA DE ESPERA</h2>
-        <p id="p-game-desc" style="font-size:0.85rem; color:#aaa; min-height:35px; margin:0 0 15px 0;"></p>
-        <div id="p-canvas" style="min-height: 180px;"></div>
+        <h2 id="p-game-title" style="color:var(--pk);">ESPERA</h2>
+        <p id="p-game-desc" style="color:#aaa; font-size:0.9rem; min-height:40px;"></p>
+        <div id="p-canvas" style="min-height: 200px;"></div>
     </section>
 
     <section id="view-admin" class="card view" style="border-color:var(--rd);">
-        <h3 style="margin:0 0 10px 0; color:var(--rd);">🛡️ MANDO GLOBAL</h3>
+        <h3 style="margin-top:0; color:var(--rd);">🛡️ MANDO GLOBAL</h3>
         <div class="stats-row">
-            <span style="color:var(--gr);">V: <b id="a-alive">0</b></span>
-            <span style="color:var(--gd);">ACTUAL: <b id="a-game">ESPERA</b></span>
-            <span style="color:var(--rd);">M: <b id="a-dead">0</b></span>
+            <span>V: <b id="a-alive">0</b></span>
+            <span>ACTUAL: <b id="a-game">...</b></span>
+            <span>M: <b id="a-dead">0</b></span>
         </div>
-        <div id="admin-contextual" style="background:rgba(255,255,255,0.05); padding:10px; border-radius:6px; margin-bottom:10px; display:none;">
-            <div class="grid-2">
-                <button class="btn-success" onclick="setGlobal('light', 'VERDE')">Luz Verde</button>
-                <button class="btn-danger" onclick="setGlobal('light', 'ROJO')">Luz Roja</button>
-            </div>
+        <div id="admin-luz-ctrl" style="display:none; margin-bottom:15px;" class="grid-2">
+            <button class="btn-success" onclick="dbSet('state/light', 'VERDE')">VERDE</button>
+            <button class="btn-danger" onclick="dbSet('state/light', 'ROJO')">ROJA</button>
         </div>
-        <p style="font-size:0.8rem; color:#888; margin:5px 0; text-align:left;">INICIAR PRUEBA:</p>
         <div class="grid-3">
-            <button onclick="setGame('ESPERA')" style="color:#aaa; border-color:#555;">0. Reset</button>
-            <button onclick="setGame('LUZ ROJA')">1. L. Roja</button>
-            <button onclick="setGame('DALGONA')">2. Dalgona</button>
-            <button onclick="setGame('PUENTE')">3. Puente</button>
-            <button onclick="setGame('TIPEO')">4. Tipeo</button>
-            <button onclick="setGame('CANICAS')">5. Canicas</button>
-            <button onclick="setGame('RULETA')">6. Ruleta</button>
-            <button onclick="setGame('REFLEJOS')">7. Reflejos</button>
-            <button onclick="setGame('CÁLIZ')">8. Cáliz</button>
+            <button onclick="setGame('ESPERA')">RESET</button>
+            <button onclick="setGame('LUZ ROJA')">L.ROJA</button>
+            <button onclick="setGame('DALGONA')">DALGONA</button>
+            <button onclick="setGame('PUENTE')">PUENTE</button>
+            <button onclick="setGame('TIPEO')">TIPEO</button>
+            <button onclick="setGame('CANICAS')">CANICAS</button>
+            <button onclick="setGame('RULETA')">RULETA</button>
+            <button onclick="setGame('REFLEJOS')">REFLEJOS</button>
+            <button onclick="setGame('CÁLIZ')">CÁLIZ</button>
         </div>
-        <p style="font-size:0.8rem; color:#888; margin:15px 0 5px 0; text-align:left;">HERRAMIENTAS DIVINAS:</p>
+        <div class="grid-2" style="margin-top:15px;">
+            <button class="btn-danger" onclick="killSlow()">ELIMINAR LENTOS</button>
+            <button class="btn-success" onclick="reviveAll()">REVIVIR TODOS</button>
+        </div>
         <div class="grid-2">
-            <button class="btn-danger" onclick="killUnqualified()">☠️ Matar Lentos</button>
-            <button class="btn-success" onclick="reviveAll()">✨ Revivir Todos</button>
-            <button style="border-color:#555; color:#aaa;" onclick="fireSound('snd-siren')">🚨 Sirena</button>
-            <button style="border-color:#555; color:#aaa;" onclick="fireSound('snd-shot')">🔫 Disparo</button>
+            <button onclick="fireSound('snd-siren')">🚨 SIRENA</button>
+            <button onclick="fireSound('snd-shot')">🔫 DISPARO</button>
         </div>
     </section>
 
     <section id="view-vip" class="card view">
-        <h2 id="v-title" style="color:var(--gd);">ZONA VIP</h2>
-        <div class="stats-row" style="flex-direction:column; gap:10px; padding:20px;">
-            <div style="font-size:1.5rem; color:var(--gr);">VIVOS: <b id="v-alive">0</b></div>
-            <div style="font-size:1.5rem; color:var(--rd);">ELIMINADOS: <b id="v-dead">0</b></div>
+        <h2 id="v-title" style="color:var(--gd);">PANEL VIP</h2>
+        <div class="stats-row" style="text-align:center; display:block; padding:20px;">
+            VIVOS: <span id="v-alive" style="color:var(--gr); font-size:1.5rem;">0</span> | 
+            MUERTOS: <span id="v-dead" style="color:var(--rd); font-size:1.5rem;">0</span>
         </div>
-        <p style="color:#888;">Juego actual: <span id="v-game" style="color:white;">...</span></p>
+        <p style="text-align:center;">JUEGO ACTUAL: <span id="v-game" style="color:white; font-weight:bold;">...</span></p>
     </section>
 
     <script>
         const config = { databaseURL: "https://squid-games-24283-default-rtdb.firebaseio.com/" };
-        if (!firebase.apps.length) firebase.initializeApp(config);
+        firebase.initializeApp(config);
         const db = firebase.database();
 
-        let P = { id: localStorage.getItem('osg_id'), role: localStorage.getItem('osg_role'), status: 'ALIVE', prog: 0, qual: false };
+        let P = { id: localStorage.getItem('os_id'), role: localStorage.getItem('os_role'), st: 'ALIVE', prog: 0, qual: false };
         let G = { name: "ESPERA", light: "ROJO" };
 
-        function showNotification(msg, type = 'success') {
-            const container = document.getElementById('toast-container');
-            const toast = document.createElement('div'); toast.className = `toast ${type}`; toast.innerText = msg;
-            container.appendChild(toast);
-            setTimeout(() => { toast.classList.add('toast-fade'); setTimeout(() => toast.remove(), 400); }, 3000);
+        function notify(m, type="info") {
+            const c = document.getElementById('toast-container');
+            const e = document.createElement('div'); e.className = 'toast'; e.innerText = m;
+            c.appendChild(e); setTimeout(() => e.remove(), 2500);
         }
 
         function hardReset() { localStorage.clear(); location.reload(); }
-        function switchView(viewId) { document.querySelectorAll('.view').forEach(v => v.classList.remove('active-view')); document.getElementById(viewId).classList.add('active-view'); }
+        function switchView(id) { document.querySelectorAll('.view').forEach(v => v.classList.remove('active-view')); document.getElementById(id).classList.add('active-view'); }
         function playS(id) { let s = document.getElementById(id); s.currentTime=0; s.play().catch(()=>{}); }
-        function unlockAudio() { ['snd-shot', 'snd-win', 'snd-siren'].forEach(id => { let s = document.getElementById(id); s.volume = 0; s.play().then(()=> { s.pause(); s.currentTime = 0; s.volume = 1; }).catch(()=>{}); }); }
+        function unlockAudio() { ['snd-shot', 'snd-win', 'snd-siren'].forEach(id => { let s = document.getElementById(id); s.volume=0; s.play().then(()=>{s.pause(); s.currentTime=0; s.volume=1;}).catch(()=>{}); }); }
 
-        // --- LOGIN ---
         function login(role) {
-            const name = document.getElementById('username').value.trim().toUpperCase() || "ANÓNIMO";
+            const name = document.getElementById('username').value.trim().toUpperCase() || "MAGO";
             if(role === 'ADMIN') {
-                if(document.getElementById('admin-pass').value !== "SquidGamesOrion15") return showNotification("❌ Password Incorrecto", "error");
-                localStorage.setItem('osg_role', 'ADMIN'); P.role = "ADMIN"; 
-                switchView('view-admin'); initAdmin(); return showNotification("🛡️ Admin Listo");
-            }
-            if(role === 'PLAYER' && name === "ANÓNIMO") return showNotification("⚠️ Escribe tu nombre", "error");
-
-            unlockAudio();
-            P.id = "u_" + Date.now(); P.role = role; P.status = "ALIVE";
-            const num = Math.floor(Math.random()*456 + 1).toString().padStart(3,'0');
-            localStorage.setItem('osg_id', P.id); localStorage.setItem('osg_role', role);
-
-            if(role === 'PLAYER') db.ref('players/' + P.id).set({ n: name, num: num, st: "ALIVE", q: false });
-            routeUser();
-        }
-
-        function routeUser() {
-            if(!P.role) return;
-            if(P.role === 'ADMIN') { switchView('view-admin'); initAdmin(); return; }
-            if(P.role === 'VIP' || P.status === 'DEAD') {
-                switchView('view-vip');
-                if(P.status === 'DEAD') { document.getElementById('view-vip').classList.add('dead-screen'); document.getElementById('v-title').innerText = "EL PURGATORIO"; document.getElementById('v-title').style.color = "var(--rd)"; }
-                initVIP();
+                if(document.getElementById('admin-pass').value !== "SquidGamesOrion15") return notify("❌ PASSWORD INCORRECTO");
+                P.role = 'ADMIN'; localStorage.setItem('os_role', 'ADMIN');
             } else {
-                switchView('view-player');
-                db.ref('players/' + P.id).once('value', s => { if(s.exists()) document.getElementById('p-tag').innerText = "#" + s.val().num; });
-                initPlayer();
+                if(role === 'PLAYER' && name === "MAGO") return notify("⚠️ INGRESA TU NOMBRE");
+                unlockAudio();
+                P.id = "u" + Date.now(); P.role = role; P.st = "ALIVE";
+                localStorage.setItem('os_id', P.id); localStorage.setItem('os_role', role);
+                if(role === 'PLAYER') db.ref('players/'+P.id).set({ n: name, st: "ALIVE", q: false, num: Math.floor(Math.random()*400+1) });
             }
+            route();
         }
 
-        // --- ADMIN ---
+        function route() {
+            if(!P.role) return switchView('view-login');
+            if(P.role === 'ADMIN') { switchView('view-admin'); initAdmin(); return; }
+            if(P.role === 'VIP' || P.st === 'DEAD') { 
+                switchView('view-vip'); 
+                if(P.st === 'DEAD') { document.getElementById('view-vip').classList.add('dead-screen'); document.getElementById('v-title').innerText = "PURGATORIO"; }
+                initVIP(); return; 
+            }
+            switchView('view-player'); initPlayer();
+        }
+
+        // ADMIN
         function initAdmin() {
             db.ref('state/game').on('value', s => { 
-                G.name = s.val() || 'ESPERA'; document.getElementById('a-game').innerText = G.name; 
-                document.getElementById('admin-contextual').style.display = (G.name === 'LUZ ROJA') ? 'block' : 'none';
+                G.name = s.val() || 'ESPERA'; document.getElementById('a-game').innerText = G.name;
+                document.getElementById('admin-luz-ctrl').style.display = (G.name === 'LUZ ROJA') ? 'grid' : 'none';
             });
-            db.ref('players').on('value', s => { let a=0, d=0; s.forEach(c => { if(c.val().st === 'ALIVE') a++; else d++; }); document.getElementById('a-alive').innerText = a; document.getElementById('a-dead').innerText = d; });
+            db.ref('players').on('value', s => {
+                let a=0, d=0; s.forEach(c => { if(c.val().st === 'ALIVE') a++; else d++; });
+                document.getElementById('a-alive').innerText = a; document.getElementById('a-dead').innerText = d;
+            });
         }
-        function setGame(g) { db.ref('state').update({ game: g, light: "ROJO" }); showNotification(`🎮 Juego: ${g}`); }
-        function setGlobal(key, val) { db.ref('state/' + key).set(val); }
-        function fireSound(snd) { db.ref('state/snd').set({ id: snd, t: Date.now() }); showNotification(`🔊 Sonido enviado`); }
-        function killUnqualified() { db.ref('players').once('value', snap => { snap.forEach(child => { if(child.val().st === 'ALIVE' && !child.val().q) db.ref('players/'+child.key+'/st').set('DEAD'); }); }); showNotification("☠️ Lentos eliminados", "error"); }
-        function reviveAll() { db.ref('players').once('value', snap => { snap.forEach(c => { db.ref('players/'+c.key+'/st').set('ALIVE'); }); }); showNotification("✨ Todos revividos"); }
+        function setGame(g) { db.ref('state').update({ game: g, light: 'ROJO' }); notify("🎮 JUEGO: " + g); }
+        function dbSet(p, v) { db.ref(p).set(v); }
+        function reviveAll() { db.ref('players').once('value', s => s.forEach(c => db.ref('players/'+c.key+'/st').set('ALIVE'))); notify("✨ TODOS REVIVIDOS"); }
+        function killSlow() { db.ref('players').once('value', s => s.forEach(c => { if(c.val().st==='ALIVE' && !c.val().q) db.ref('players/'+c.key+'/st').set('DEAD'); })); notify("☠️ LENTOS ELIMINADOS"); }
+        function fireSound(id) { db.ref('state/snd').set({ id: id, t: Date.now() }); }
 
-        // --- VIP ---
+        // VIP
         function initVIP() {
-            db.ref('state/game').on('value', s => document.getElementById('v-game').innerText = s.val() || 'ESPERA');
-            db.ref('players').on('value', s => { let a=0, d=0; s.forEach(c => { if(c.val().st === 'ALIVE') a++; else d++; }); document.getElementById('v-alive').innerText = a; document.getElementById('v-dead').innerText = d; });
+            db.ref('state/game').on('value', s => document.getElementById('v-game').innerText = s.val());
+            db.ref('players').on('value', s => {
+                let a=0, d=0; s.forEach(c => { if(c.val().st === 'ALIVE') a++; else d++; });
+                document.getElementById('v-alive').innerText = a; document.getElementById('v-dead').innerText = d;
+            });
         }
 
-        // --- JUGADOR ---
+        // PLAYER
         function initPlayer() {
             db.ref('state/snd').on('value', s => { if(s.val()) playS(s.val().id); });
             db.ref('state').on('value', snap => {
-                const s = snap.val(); if(!s) return;
+                const s = snap.val() || {game:'ESPERA', light:'ROJO'};
+                if(window.lg !== s.game) { P.prog = 0; P.qual = false; window.lg = s.game; db.ref('players/'+P.id+'/q').set(false); clearTimeout(window.refTimer); }
                 G.name = s.game; G.light = s.light;
-
-                if(window.lastG !== G.name) {
-                    P.prog = 0; P.qual = false; window.lastG = G.name;
-                    document.getElementById('view-player').classList.remove('win-screen');
-                    db.ref('players/'+P.id+'/q').set(false);
-                    clearTimeout(window.refTimer);
-                }
                 renderUI();
             });
-            db.ref('players/' + P.id + '/st').on('value', s => {
-                if(s.val() === 'DEAD' && P.status !== 'DEAD') {
-                    P.status = 'DEAD'; playS('snd-shot'); document.body.classList.add('shake');
-                    setTimeout(() => { document.body.classList.remove('shake'); routeUser(); }, 1000);
-                }
-            });
+            db.ref('players/'+P.id+'/st').on('value', s => { if(s.val()==='DEAD' && P.st !== 'DEAD') { P.st='DEAD'; playS('snd-shot'); route(); } });
         }
 
         function renderUI() {
-            if(P.status === 'DEAD') return;
-            if(P.qual) return showWin();
-
-            const c = document.getElementById('p-canvas');
+            if(P.st === 'DEAD') return;
+            if(P.qual) return document.getElementById('p-canvas').innerHTML = "<h1 style='color:var(--gd); margin-top:40px;'>CALIFICADO</h1>";
+            
+            const v = document.getElementById('p-canvas');
+            const desc = document.getElementById('p-game-desc');
             document.getElementById('p-game-title').innerText = G.name;
-            const d = document.getElementById('p-game-desc');
 
             switch(G.name) {
-                case "LUZ ROJA":
-                    d.innerText = "Meta: 100 Pasos. Luz verde avanzas.";
-                    c.innerHTML = `<div class="luz ${G.light === 'VERDE' ? 'luz-verde' : 'luz-roja'}"></div>
-                        <div class="bar-bg"><div class="bar-fill" style="width:${P.prog}%"></div></div>
-                        <button class="btn-fill" onclick="actLuz()" style="height:70px; font-size:1.5rem;">AVANZAR</button>`;
+                case 'LUZ ROJA':
+                    desc.innerText = "Avanza en verde. Muere en rojo.";
+                    v.innerHTML = `<div class="luz ${G.light==='VERDE'?'luz-verde':'luz-roja'}"></div><div class="bar-bg"><div class="bar-fill" style="width:${P.prog}%"></div></div><button onpointerdown="actLuz()">AVANZAR</button>`;
                     break;
-                case "DALGONA":
-                    d.innerText = "Meta: Mantén pulsado entre 3.8 y 4.2 seg.";
-                    c.innerHTML = `<button class="btn-gold" id="btn-dalgona" style="height:100px; font-size:1.2rem; margin-top:20px; touch-action:none;">👉 MANTENER 👈</button>`;
+                case 'DALGONA':
+                    desc.innerText = "Mantén presionado entre 3.8s y 4.2s.";
+                    v.innerHTML = `<button id="btn-dalgona" style="height:120px; margin-top:20px; touch-action:none;">👉 MANTENER 👈</button>`;
                     const bD = document.getElementById('btn-dalgona'); bD.onpointerdown = sDal; bD.onpointerup = eDal; bD.onpointerleave = eDal;
                     break;
-                case "PUENTE":
-                    d.innerText = `Cruza 5 baldosas (50% de Letalidad).\nPASO: ${P.prog}/5`;
-                    c.innerHTML = `<div class="grid-2" style="margin-top:20px;">
-                        <button onclick="actPte()" style="height:90px; border-color:var(--bl); color:var(--bl);">IZQ</button>
-                        <button onclick="actPte()" style="height:90px; border-color:var(--bl); color:var(--bl);">DER</button>
-                    </div>`;
+                case 'PUENTE':
+                    desc.innerText = `Llega al final (${P.prog}/5). 50% de morir.`;
+                    v.innerHTML = `<div class="grid-2" style="margin-top:20px;"><button onpointerdown="actPte()">IZQ</button><button onpointerdown="actPte()">DER</button></div>`;
                     break;
-                case "RULETA":
-                    d.innerText = `Gatilla 5 veces. 1/6 probabilidad de morir.\nINTENTO: ${P.prog}/5`;
-                    c.innerHTML = `<button class="btn-danger" onclick="actRul()" style="height:100px; font-size:1.5rem; margin-top:20px;">🔫 JALAR GATILLO</button>`;
+                case 'TIPEO':
+                    desc.innerText = "Escribe: EXPECTO PATRONUM";
+                    v.innerHTML = `<input id="i-sp" autocomplete="off" style="margin-top:10px;"><button onclick="actTip()">LANZAR</button>`;
                     break;
-                case "TIPEO":
-                    d.innerText = "Escribe: EXPECTO PATRONUM";
-                    c.innerHTML = `<input type="text" id="i-spell" autocomplete="off" style="margin-top:15px;">
-                        <button class="btn-fill" onclick="actTip()">LANZAR HECHIZO</button>`;
+                case 'CANICAS':
+                    desc.innerText = `Adivina Par(0) o Impar(1). 3 aciertos (${P.prog}/3).`;
+                    v.innerHTML = `<div class="grid-2" style="margin-top:20px;"><button onpointerdown="actCan(0)">PAR</button><button onpointerdown="actCan(1)">NONES</button></div>`;
                     break;
-                case "CANICAS":
-                    d.innerText = `Adivina Par o Impar contra el sistema.\nINTENTO: ${P.prog}/3`;
-                    c.innerHTML = `<div class="grid-2" style="margin-top:20px;">
-                        <button onclick="actCan(0)" style="height:90px;">PARES</button>
-                        <button onclick="actCan(1)" style="height:90px;">NONES</button>
-                    </div>`;
+                case 'RULETA':
+                    desc.innerText = "Gatilla 5 veces. 16% de morir.";
+                    v.innerHTML = `<button class="btn-danger" onpointerdown="actRul()" style="height:100px; margin-top:20px;">🔫 DISPARAR</button>`;
                     break;
-                case "REFLEJOS":
-                    d.innerText = "Toca el escudo que aparezca en menos de 1 segundo.";
-                    c.innerHTML = `<button id="btn-reflejo" onclick="actRef()" style="height:100px; font-size:2rem; background:var(--bl); color:black; display:none; margin-top:20px;">🛡️ PROTEGO</button>
-                    <p id="reflejo-wait" style="color:var(--pk); font-weight:bold; font-size:1.2rem; margin-top:40px;">ATENTO...</p>`;
+                case 'REFLEJOS':
+                    desc.innerText = "Toca el escudo rápido.";
+                    v.innerHTML = `<button id="btn-ref" onclick="win()" style="display:none; height:100px; background:var(--bl); color:black; margin-top:20px;">🛡️ ESCUDO</button><p id="ref-w" style="margin-top:40px; font-weight:bold;">ATENTO...</p>`;
                     startRef();
                     break;
-                case "CÁLIZ":
-                    d.innerText = "Supervivencia final. Mantén presionado sin soltar.";
-                    c.innerHTML = `<button class="btn-gold" id="btn-caliz" style="height:120px; font-size:1.2rem; margin-top:20px; touch-action:none;">🏆 SOSTENER CÁLIZ</button>`;
+                case 'CÁLIZ':
+                    desc.innerText = "No sueltes hasta el final.";
+                    v.innerHTML = `<button id="btn-caliz" style="height:120px; margin-top:20px; touch-action:none;">🏆 SOSTENER</button>`;
                     const bC = document.getElementById('btn-caliz'); bC.onpointerdown = sCal; bC.onpointerup = eCal; bC.onpointerleave = eCal;
                     break;
                 default:
-                    d.innerText = "Espera indicaciones del Guardián.";
-                    c.innerHTML = `<div style="font-size:4rem; margin-top:20px; animation: pulse 2s infinite; color:#555;">⏳</div>`;
+                    desc.innerText = "Espera órdenes.";
+                    v.innerHTML = "<h3>SALA DE ESPERA...</h3>";
             }
         }
 
-        function die() { db.ref('players/' + P.id).update({ st: "DEAD" }); }
-        function win() { P.qual = true; db.ref('players/' 
+        // LÓGICAS
+        function actLuz() { if(G.light==='ROJO') die(); else { P.prog+=5; if(P.prog>=100) win(); else renderUI(); } }
+        let tD; function sDal(e) { e.preventDefault(); tD=Date.now(); document.getElementById('btn-dalgona').classList.add('pressing'); }
+        function eDal() { if(!tD) return; let df=(Date.now()-tD)/1000; tD=null; document.getElementById('btn-dalgona').classList.remove('pressing'); if(df>=3.8 && df<=4.2) win(); else die(); }
+        function actPte() { if(Math.random()<0.5) die(); else { P.prog++; if(P.prog>=5) win(); else renderUI(); } }
+        function actTip() { if(document.getElementById('i-sp').value.trim().toUpperCase()==="EXPECTO PATRONUM") win(); else die(); }
+        function actCan(g) { let s=Math.floor(Math.random()*10); if(s%2!==g) return die(); P.prog++; if(P.prog>=3) win(); else renderUI(); }
+        function actRul() { if(Math.random()<0.16) die(); else { P.prog++; if(P.prog>=5) win(); else renderUI(); } }
+        function startRef() { setTimeout(() => { if(G.name!=='REFLEJOS' || P.st==='DEAD' || P.qual) return; document.getElementById('ref-w').style.display='none'; document.getElementById('btn-ref').style.display='block'; window.refTimer = setTimeout(() => { if(!P.qual) die(); }, 1100); }, Math.random()*3000+2000); }
+        let hc=false; function sCal(e) { e.preventDefault(); hc=true; document.getElementById('btn-caliz').classList.add('pressing'); }
+        function eCal() { if(hc && G.name==='CÁLIZ') die(); hc=false; }
+        function die() { db.ref('players/'+P.id).update({st:'DEAD'}); }
+        function win() { P.qual=true; db.ref('players/'+P.id).update({q:true}); playS('snd-win'); renderUI(); }
+
+        window.onload = route;
+    </script>
+</body>
+</html>
