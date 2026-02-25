@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ORION SQUID GAMES 2.0 | TOURNAMENT</title>
+    <title>ORION SQUID GAMES | THE ULTIMATE TOURNAMENT</title>
     
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
@@ -11,250 +11,340 @@
 
     <style>
         :root {
-            --pink: #ff2e63; --green: #00ff41; --gold: #ffd700;
-            --dark: #070707; --red: #ff003c; --blue: #08d9d6;
+            --pk: #ff2e63; --gr: #00ff41; --gd: #ffd700;
+            --bk: #070707; --rd: #ff003c; --bl: #08d9d6;
         }
 
         body {
-            background: radial-gradient(circle at center, #1a1a1a 0%, var(--dark) 100%);
+            background: radial-gradient(circle at top, #1a000d 0%, var(--bk) 100%);
             color: white; font-family: 'Courier New', monospace; margin: 0;
             display: flex; flex-direction: column; align-items: center;
-            padding: 20px; min-height: 100vh; overflow-x: hidden;
-            user-select: none; /* Evita seleccionar texto por error en móviles */
+            padding: 15px; min-height: 100vh; overflow-x: hidden; user-select: none;
         }
 
-        /* EFECTO CRISTAL PREMIUM */
+        /* CONTENEDORES PREMIUM */
         .card {
-            background: rgba(15, 15, 15, 0.7); border: 1px solid rgba(255, 46, 99, 0.3);
-            border-radius: 15px; padding: 30px; width: 100%; max-width: 600px;
+            background: rgba(10, 10, 10, 0.8); border: 1px solid rgba(255, 46, 99, 0.3);
+            border-radius: 15px; padding: 25px; width: 100%; max-width: 600px;
             margin-bottom: 20px; box-sizing: border-box; backdrop-filter: blur(10px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.8); transition: all 0.5s ease;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.9); transition: 0.5s;
         }
 
-        .logo { 
-            font-size: 3rem; letter-spacing: 15px; text-shadow: 0 0 20px var(--pink); 
-            text-align: center; cursor: pointer; margin-bottom: 10px;
-            animation: pulse 2s infinite;
-        }
-
-        h1 { margin: 0 0 20px 0; text-align: center; font-size: 1.5rem; letter-spacing: 5px; }
+        .logo { font-size: 2.5rem; letter-spacing: 10px; text-shadow: 0 0 20px var(--pk); text-align: center; cursor: pointer; animation: pulse 2s infinite; }
+        h1, h2, h3 { text-align: center; margin-top: 0; letter-spacing: 2px; }
 
         input {
-            width: 100%; padding: 15px; margin-bottom: 15px; background: rgba(0,0,0,0.6); 
+            width: 100%; padding: 15px; margin-bottom: 15px; background: rgba(0,0,0,0.8); 
             color: white; border: 1px solid #444; border-radius: 8px; font-size: 1.2rem;
             text-align: center; text-transform: uppercase; box-sizing: border-box;
-            transition: 0.3s;
         }
-        input:focus { outline: none; border-color: var(--pink); box-shadow: 0 0 15px rgba(255,46,99,0.5); }
+        input:focus { outline: none; border-color: var(--pk); box-shadow: 0 0 15px rgba(255,46,99,0.5); }
 
         button {
             width: 100%; padding: 18px; margin: 8px 0; background: transparent; 
-            border: 2px solid var(--pink); color: var(--pink); font-size: 1.1rem;
+            border: 2px solid var(--pk); color: var(--pk); font-size: 1.1rem;
             font-weight: 900; cursor: pointer; border-radius: 8px; text-transform: uppercase;
-            transition: 0.2s; letter-spacing: 2px;
+            transition: 0.1s; letter-spacing: 1px;
         }
-        button:active { transform: scale(0.95); background: var(--pink); color: white; }
+        button:active { transform: scale(0.95); background: var(--pk); color: white; }
+        button:disabled { border-color: #333; color: #555; cursor: not-allowed; }
 
-        /* LUZ VISUAL MEJORADA */
-        #luz-indicador {
-            width: 120px; height: 120px; border-radius: 50%;
-            margin: 30px auto; border: 6px solid #111;
-            transition: background-color 0.1s, box-shadow 0.1s;
-        }
+        /* BARRAS Y LUCES */
+        .progress-box { background: #111; height: 20px; border-radius: 10px; border: 1px solid #333; margin: 15px 0; overflow: hidden; }
+        .progress-fill { height: 100%; width: 0%; background: var(--pk); transition: 0.2s; box-shadow: 0 0 10px var(--pk); }
+        
+        .luz { width: 100px; height: 100px; border-radius: 50%; margin: 20px auto; border: 5px solid #111; transition: 0.1s; }
+        .luz-verde { background: var(--gr); box-shadow: 0 0 50px var(--gr); }
+        .luz-roja { background: var(--rd); box-shadow: 0 0 50px var(--rd); }
 
-        .luz-roja { background-color: var(--red); box-shadow: 0 0 60px var(--red); }
-        .luz-verde { background-color: var(--green); box-shadow: 0 0 60px var(--green); }
+        /* ESTILOS DE VISTAS */
+        .view-winner { border-color: var(--gd); box-shadow: 0 0 30px rgba(255,215,0,0.3); }
+        .view-dead { border-color: var(--rd); background: linear-gradient(to bottom, #2a0000, #000); }
+        .view-vip { border-color: var(--gd); background: linear-gradient(to bottom, #1a1a00, #000); }
 
-        /* ADMIN PANEL */
-        #admin-panel { border-color: var(--red); display: none; }
-        .admin-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
+        /* ADMIN */
+        #admin-panel { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 1000; display: none; overflow-y: auto; padding: 20px; }
+        .admin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
 
-        /* MODO VIP (ELIMINADOS) */
-        .vip-mode { 
-            border-color: var(--gold) !important; 
-            background: linear-gradient(135deg, rgba(20,0,0,0.9), rgba(26,0,51,0.9)) !important; 
-            box-shadow: 0 0 30px rgba(255, 215, 0, 0.2);
-        }
-
-        @keyframes pulse { 0% { text-shadow: 0 0 15px var(--pink); } 50% { text-shadow: 0 0 25px var(--pink), 0 0 40px var(--pink); } 100% { text-shadow: 0 0 15px var(--pink); } }
+        .stat-box { display: flex; justify-content: space-between; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px; margin-bottom: 10px; font-weight: bold; }
+        
+        @keyframes pulse { 0%, 100% { text-shadow: 0 0 15px var(--pk); } 50% { text-shadow: 0 0 30px var(--pk); } }
     </style>
 </head>
 <body>
 
     <header>
         <div class="logo">🔺⚪🟦</div>
-        <h1>ORION <span style="color:var(--pink)">SYSTEM</span></h1>
+        <h1 style="color:var(--pk); font-size:1.2rem;">ORION SYSTEM</h1>
     </header>
 
     <section id="auth-screen" class="card animate__animated animate__fadeIn">
-        <h3 style="text-align:center; color: #aaa;">SOLICITUD DE ACCESO</h3>
-        <input type="text" id="username" placeholder="TU NOMBRE DE MAGO" autocomplete="off">
-        <button onpointerdown="joinGame()" style="background:var(--pink); color:white;">ACEPTAR CONTRATO</button>
+        <h3 style="color: #aaa;">IDENTIFICACIÓN REQUERIDA</h3>
+        <input type="text" id="username" placeholder="TU NOMBRE" autocomplete="off">
+        <button onpointerdown="joinGame('PLAYER')" style="background:var(--pk); color:white;">ENTRAR COMO TRIBUTO</button>
+        <button onpointerdown="joinGame('SPECTATOR')" style="border-color:var(--gd); color:var(--gd); margin-top:15px;">ENTRAR COMO GRAN VIP</button>
     </section>
 
-    <section id="main-arena" class="card" style="display:none;">
-        <div style="display:flex; justify-content:space-between; border-bottom: 1px solid #333; padding-bottom: 15px; margin-bottom: 20px;">
-            <h2 id="p-number" style="margin:0; font-size:1.5rem; color:var(--blue);">#000</h2>
-            <span id="p-status" style="color:var(--green); font-weight:bold; font-size:1.2rem;">● VIVO</span>
+    <section id="arena-screen" class="card" style="display:none;">
+        <div style="display:flex; justify-content:space-between; border-bottom: 1px solid #333; padding-bottom: 10px; margin-bottom: 20px;">
+            <span id="p-number" style="font-size:1.2rem; color:var(--bl); font-weight:bold;">#000</span>
+            <span id="p-status" style="color:var(--gr); font-weight:bold;">● VIVO</span>
         </div>
-
-        <div id="game-viewport" style="text-align:center; min-height: 250px;">
-            <h2 id="game-title" style="letter-spacing: 3px;">SALA DE ESPERA</h2>
-            <div id="luz-indicador" style="display:none;"></div>
-            <p id="game-instruction" style="color:#aaa;">Esperando inicio del Torneo...</p>
-            <div id="game-content"></div>
-        </div>
+        
+        <h2 id="game-title" style="color:var(--pk);">CONECTANDO...</h2>
+        <p id="game-desc" style="color:#aaa; text-align:center; min-height: 40px;"></p>
+        
+        <div id="game-canvas" style="min-height: 200px; text-align:center;"></div>
     </section>
 
-    <section id="admin-panel" class="card">
-        <h3 style="color:var(--red); text-align:center; text-shadow:0 0 10px var(--red);">🛡️ MODO GUARDIÁN</h3>
+    <section id="observer-screen" class="card" style="display:none;">
+        <h2 id="obs-title" style="color:var(--gd);">MESA DE LOS DIOSES</h2>
+        <p style="color:#aaa; text-align:center;">Supervisión global en tiempo real.</p>
         
-        <button onpointerdown="adminSetGame('Luz Roja, Luz Verde')" style="border-color:white; color:white;">ACTIVAR: LUZ ROJA/VERDE</button>
+        <div class="stat-box" style="border-left: 5px solid var(--gr);">
+            <span>TRIBUTOS VIVOS:</span> <span id="stat-alive" style="color:var(--gr); font-size:1.5rem;">0</span>
+        </div>
+        <div class="stat-box" style="border-left: 5px solid var(--rd);">
+            <span>TRIBUTOS CAÍDOS:</span> <span id="stat-dead" style="color:var(--rd); font-size:1.5rem;">0</span>
+        </div>
         
-        <div id="admin-light-controls" class="admin-controls" style="display:none; background: rgba(0,0,0,0.5); padding: 15px; border-radius: 10px;">
-            <button onpointerdown="adminSetLight('VERDE')" style="background:var(--green); color:black; border:none;">🟢 VERDE</button>
-            <button onpointerdown="adminSetLight('ROJO')" style="background:var(--red); color:white; border:none;">🔴 ROJO</button>
+        <h3 style="margin-top:30px; border-bottom:1px solid #333; padding-bottom:10px;">JUEGO ACTUAL: <span id="obs-game" style="color:var(--pk)">ESPERA</span></h3>
+        <p style="text-align:center; font-size:0.9rem; color:#666;">Los VIPS no pueden interferir en la arena.</p>
+    </section>
+
+    <section id="admin-panel">
+        <h2 style="color:var(--rd); text-shadow:0 0 20px var(--rd); text-align:center;">🛡️ CENTRO DE MANDO</h2>
+        
+        <div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:10px; margin-bottom:20px;">
+            <h3 style="margin-top:0; color:var(--gd);">CONTROL DE JUEGOS</h3>
+            <button onpointerdown="setGame('SALA DE ESPERA')" style="border-color:#555; color:#aaa;">0. SALA DE ESPERA / RESET</button>
+            <button onpointerdown="setGame('LUZ ROJA')" style="border-color:var(--pk); color:var(--pk);">1. LUZ ROJA, LUZ VERDE</button>
+            <button onpointerdown="setGame('DALGONA')" style="border-color:var(--pk); color:var(--pk);">2. DALGONA</button>
+            <button onpointerdown="setGame('PUENTE')" style="border-color:var(--pk); color:var(--pk);">3. PUENTE DE CRISTAL</button>
+            <button onpointerdown="setGame('TIPEO')" style="border-color:var(--pk); color:var(--pk);">4. TIPEO MORTAL</button>
         </div>
 
-        <button onpointerdown="adminSetGame('SALA DE ESPERA')" style="background:#222; border-color:#444; color:#888; margin-top:15px;">DETENER JUEGO</button>
-        <button onpointerdown="location.reload()" style="border-color:#444; color:#888;">CERRAR PANEL</button>
+        <div id="admin-luz" style="display:none; background:rgba(255,0,0,0.1); padding:15px; border-radius:10px;">
+            <h3 style="margin-top:0;">CONTROL LUZ ROJA</h3>
+            <div class="admin-grid">
+                <button onpointerdown="setLight('VERDE')" style="background:var(--gr); color:black; border:none;">🟢 LUZ VERDE</button>
+                <button onpointerdown="setLight('ROJO')" style="background:var(--rd); color:white; border:none;">🔴 LUZ ROJA</button>
+            </div>
+        </div>
+
+        <button onpointerdown="closeAdmin()" style="margin-top:40px; border-color:#555; color:#555;">CERRAR PANEL</button>
     </section>
 
     <script>
-        // CONFIGURACIÓN FIREBASE
         const firebaseConfig = { databaseURL: "https://squid-games-24283-default-rtdb.firebaseio.com/" };
         if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
         const db = firebase.database();
 
-        let myId = localStorage.getItem('orion_id');
-        let currentLuzLocal = "ROJO";
-        let isDead = false;
+        let myData = { id: localStorage.getItem('ori_id'), role: localStorage.getItem('ori_role'), status: 'ALIVE', progress: 0 };
+        let gameState = { current: "SALA DE ESPERA", light: "ROJO" };
+        let roundQualified = false; 
         let adminClicks = 0;
 
-        // PANEL SECRETO (5 CLICS EN EL LOGO)
+        // PANEL SECRETO (7 CLICS EN LOGO)
         document.querySelector('.logo').onclick = () => {
             adminClicks++;
-            if(adminClicks === 5) document.getElementById('admin-panel').style.display = 'block';
+            if(adminClicks >= 7) { document.getElementById('admin-panel').style.display = 'block'; adminClicks = 0; }
         };
+        function closeAdmin() { document.getElementById('admin-panel').style.display = 'none'; }
 
-        // FUNCIONES DE ADMIN
-        function adminSetGame(name) { 
-            db.ref('state/current_game').set(name); 
-            db.ref('state/light_color').set("ROJO"); // Inicia siempre en rojo por seguridad
-            document.getElementById('admin-light-controls').style.display = (name === 'Luz Roja, Luz Verde') ? 'grid' : 'none';
+        // FUNCIONES ADMIN
+        function setGame(g) { 
+            db.ref('state').update({ current_game: g, light_color: "ROJO" }); 
+            document.getElementById('admin-luz').style.display = (g === 'LUZ ROJA') ? 'block' : 'none';
         }
-        function adminSetLight(color) { db.ref('state/light_color').set(color); }
+        function setLight(c) { db.ref('state/light_color').set(c); }
 
-        // INGRESO DEL JUGADOR
-        function joinGame() {
+        // INGRESO
+        function joinGame(role) {
             const name = document.getElementById('username').value.trim().toUpperCase();
-            if(!name) { alert("Debes ingresar tu nombre."); return; }
+            if(!name) return alert("Escribe tu nombre.");
             
-            myId = "user_" + Date.now();
-            const playerNumber = Math.floor(Math.random()*456 + 1).toString().padStart(3,'0');
+            myData.id = "user_" + Date.now();
+            myData.role = role;
+            const num = Math.floor(Math.random()*456 + 1).toString().padStart(3,'0');
             
-            localStorage.setItem('orion_id', myId);
-            db.ref('players/' + myId).set({ name: name, number: playerNumber, status: "ALIVE" });
+            localStorage.setItem('ori_id', myData.id);
+            localStorage.setItem('ori_role', myData.role);
             
-            startArena();
+            if(role === 'PLAYER') {
+                db.ref('players/' + myData.id).set({ name: name, number: num, status: "ALIVE" });
+            }
+            routeUser();
         }
 
-        // CARGA DE LA ARENA
-        function startArena() {
+        function routeUser() {
             document.getElementById('auth-screen').style.display = 'none';
-            document.getElementById('main-arena').style.display = 'block';
-            
-            // Cargar datos del jugador (por si recargó la página)
-            db.ref('players/' + myId).once('value', snap => {
-                if(snap.exists()) {
-                    document.getElementById('p-number').innerText = "#" + snap.val().number;
-                    if(snap.val().status === "DEAD") setVip();
+            if(myData.role === 'SPECTATOR' || myData.status === 'DEAD') {
+                document.getElementById('observer-screen').style.display = 'block';
+                document.getElementById('arena-screen').style.display = 'none';
+                if(myData.status === 'DEAD') {
+                    document.getElementById('observer-screen').classList.add('view-dead');
+                    document.getElementById('obs-title').innerText = "SECTOR DE LOS CAÍDOS";
+                    document.getElementById('obs-title').style.color = "var(--rd)";
+                } else {
+                    document.getElementById('observer-screen').classList.add('view-vip');
                 }
-            });
-
-            listenToData();
-        }
-
-        // ESCUCHA EN TIEMPO REAL (FIREBASE)
-        function listenToData() {
-            // Escuchar cambios en el juego
-            db.ref('state/current_game').on('value', snap => {
-                const game = snap.val() || "SALA DE ESPERA";
-                document.getElementById('game-title').innerText = game;
-                
-                if(game === 'Luz Roja, Luz Verde' && !isDead) {
-                    iniciarLuzRojaVerde();
-                } else if (!isDead) {
-                    detenerJuegos();
-                }
-            });
-
-            // Escuchar el color de la luz (Sincronizado para todos)
-            db.ref('state/light_color').on('value', snap => {
-                currentLuzLocal = snap.val() || "ROJO";
-                const luz = document.getElementById('luz-indicador');
-                if(luz && luz.style.display === 'block') {
-                    luz.className = (currentLuzLocal === "VERDE") ? "luz-verde" : "luz-roja";
-                }
-            });
-
-            // Escuchar mi estado de vida
-            db.ref('players/' + myId + '/status').on('value', snap => {
-                if(snap.val() === "DEAD" && !isDead) {
-                    isDead = true;
-                    setVip();
-                }
-            });
-        }
-
-        // LÓGICA DE JUEGOS
-        function iniciarLuzRojaVerde() {
-            const luz = document.getElementById('luz-indicador');
-            luz.style.display = 'block';
-            document.getElementById('game-instruction').innerText = "Presiona AVANZAR solo cuando la luz esté verde.";
-            
-            // Nota: Uso onpointerdown porque responde al instante en pantallas táctiles, onmousedown tiene lag.
-            document.getElementById('game-content').innerHTML = `
-                <button onpointerdown="intentarMover()" style="height:80px; font-size:1.5rem; background: rgba(255, 255, 255, 0.1); margin-top: 20px;">
-                    AVANZAR 🏃‍♂️
-                </button>`;
-        }
-
-        function intentarMover() {
-            if(isDead) return;
-            
-            if(currentLuzLocal === "ROJO") {
-                document.body.style.background = "var(--red)"; // Flash rojo de muerte
-                setTimeout(() => { document.body.style.background = ""; }, 300);
-                db.ref('players/' + myId).update({ status: "DEAD" });
+                listenToGlobalStats();
             } else {
-                // Efecto visual al avanzar en verde
-                const btn = document.querySelector('#game-content button');
-                btn.style.background = "var(--green)";
-                btn.style.color = "black";
-                setTimeout(() => { btn.style.background = "rgba(255, 255, 255, 0.1)"; btn.style.color = "var(--pink)"; }, 150);
+                document.getElementById('arena-screen').style.display = 'block';
+                
+                // Recuperar info local
+                db.ref('players/' + myData.id).once('value', snap => {
+                    if(snap.exists()) {
+                        document.getElementById('p-number').innerText = "#" + snap.val().number;
+                        if(snap.val().status === 'DEAD') { myData.status = 'DEAD'; routeUser(); }
+                    }
+                });
+                listenToGame();
             }
         }
 
-        function setVip() {
-            document.getElementById('main-arena').classList.add('vip-mode', 'animate__animated', 'animate__pulse');
-            document.getElementById('p-status').innerText = "● ELIMINADO";
-            document.getElementById('p-status').style.color = "var(--red)";
-            document.getElementById('game-viewport').innerHTML = `
-                <h2 style='color:var(--gold); font-size: 2.5rem; text-shadow: 0 0 20px var(--gold);'>SECTOR VIP</h2>
-                <p style="color: #ccc; font-size: 1.1rem;">Tu Mago ha caído. Observa cómo sufren los demás.</p>
+        function listenToGlobalStats() {
+            db.ref('state/current_game').on('value', snap => { document.getElementById('obs-game').innerText = snap.val() || "ESPERA"; });
+            db.ref('players').on('value', snap => {
+                let alive = 0, dead = 0;
+                snap.forEach(child => { if(child.val().status === 'ALIVE') alive++; else dead++; });
+                document.getElementById('stat-alive').innerText = alive;
+                document.getElementById('stat-dead').innerText = dead;
+            });
+        }
+
+        // MOTOR DE JUEGO PARA JUGADORES VIVOS
+        function listenToGame() {
+            // Escuchar cambios de juego
+            db.ref('state').on('value', snap => {
+                const s = snap.val();
+                if(!s) return;
+                
+                gameState.current = s.current_game;
+                gameState.light = s.light_color;
+                
+                // Si cambia el juego, resetear progreso y calificación
+                if(window.lastGame !== gameState.current) {
+                    roundQualified = false; myData.progress = 0;
+                    document.getElementById('arena-screen').classList.remove('view-winner');
+                    window.lastGame = gameState.current;
+                }
+
+                renderGameUI();
+            });
+
+            // Escuchar si me morí desde otro lado
+            db.ref('players/' + myData.id + '/status').on('value', snap => {
+                if(snap.val() === 'DEAD' && myData.status !== 'DEAD') {
+                    myData.status = 'DEAD';
+                    document.body.style.background = "var(--rd)";
+                    setTimeout(() => { document.body.style.background = ""; routeUser(); }, 1500);
+                }
+            });
+        }
+
+        function renderGameUI() {
+            if(myData.status === 'DEAD') return;
+            if(roundQualified) return showWinScreen();
+
+            const canvas = document.getElementById('game-canvas');
+            const title = document.getElementById('game-title');
+            const desc = document.getElementById('game-desc');
+            
+            title.innerText = gameState.current;
+
+            if(gameState.current === "LUZ ROJA") {
+                desc.innerText = "Meta: 100 Pasos. Muévete solo en verde.";
+                canvas.innerHTML = `
+                    <div class="luz ${gameState.light === 'VERDE' ? 'luz-verde' : 'luz-roja'}"></div>
+                    <div class="progress-box"><div id="pb-bar" class="progress-fill" style="width:${myData.progress}%"></div></div>
+                    <p style="color:var(--gd); font-weight:bold;">PASOS: ${myData.progress}/100</p>
+                    <button onpointerdown="actionLuz()" style="height:80px; font-size:1.5rem;">AVANZAR 🏃‍♂️</button>
+                `;
+            } 
+            else if(gameState.current === "DALGONA") {
+                desc.innerText = "Meta: Precisión. Mantén el botón exactamente 4.0 segundos (Rango seguro: 3.8s a 4.2s).";
+                canvas.innerHTML = `<button id="btn-dalgona" onpointerdown="startDalgona()" onpointerup="endDalgona()" onpointerleave="endDalgona()" style="height:120px; font-size:1.5rem; border-color:var(--gd); color:var(--gd);">👉 MANTENER PRESIONADO 👈</button>`;
+            }
+            else if(gameState.current === "PUENTE") {
+                desc.innerText = `Meta: Cruza 5 cristales. 50% de probabilidad de caer al vacío.\nPASOS: ${myData.progress}/5`;
+                canvas.innerHTML = `
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px; margin-top:20px;">
+                        <button onpointerdown="actionPuente()" style="height:100px; border-color:var(--bl); color:var(--bl);">IZQUIERDA</button>
+                        <button onpointerdown="actionPuente()" style="height:100px; border-color:var(--bl); color:var(--bl);">DERECHA</button>
+                    </div>
+                `;
+            }
+            else if(gameState.current === "TIPEO") {
+                desc.innerText = "Meta: Escribe el hechizo EXACTAMENTE igual y envíalo.";
+                canvas.innerHTML = `
+                    <h3 style="color:var(--bl); font-size:1.5rem; letter-spacing:3px; user-select:none;">EXPECTO PATRONUM</h3>
+                    <input type="text" id="spell-input" placeholder="Escribe aquí...">
+                    <button onpointerdown="actionTipeo()">LANZAR HECHIZO</button>
+                `;
+            }
+            else {
+                desc.innerText = "Espera a que el Guardián inicie la prueba.";
+                canvas.innerHTML = `<div class="animate__animated animate__pulse animate__infinite" style="font-size:4rem; margin-top:30px;">⏳</div>`;
+            }
+        }
+
+        // LÓGICA DE JUEGOS ESPECÍFICOS
+        function actionLuz() {
+            if(gameState.light === 'ROJO') return killPlayer();
+            myData.progress += 2; // Avanza de a 2 para no romper pantallas
+            renderGameUI(); // Refresca barra
+            if(myData.progress >= 100) winRound();
+        }
+
+        let tDalgona;
+        function startDalgona() { 
+            tDalgona = Date.now(); 
+            const b = document.getElementById('btn-dalgona');
+            b.style.background = "var(--gd)"; b.style.color = "black"; b.innerText = "EXTRAYENDO...";
+        }
+        function endDalgona() {
+            if(!tDalgona) return;
+            let diff = (Date.now() - tDalgona) / 1000;
+            tDalgona = null;
+            if(diff >= 3.8 && diff <= 4.2) winRound(); else killPlayer();
+        }
+
+        function actionPuente() {
+            if(Math.random() < 0.5) killPlayer(); // 50% de morir
+            else {
+                myData.progress++;
+                if(myData.progress >= 5) winRound(); else renderGameUI();
+            }
+        }
+
+        function actionTipeo() {
+            const spell = document.getElementById('spell-input').value.trim().toUpperCase();
+            if(spell === "EXPECTO PATRONUM") winRound(); else killPlayer();
+        }
+
+        // RESOLUCIONES
+        function killPlayer() {
+            db.ref('players/' + myData.id).update({ status: "DEAD" }); // Firebase avisa al listener global
+        }
+
+        function winRound() {
+            roundQualified = true;
+            showWinScreen();
+        }
+
+        function showWinScreen() {
+            document.getElementById('game-desc').innerText = "";
+            document.getElementById('arena-screen').classList.add('view-winner');
+            document.getElementById('game-canvas').innerHTML = `
+                <h1 class="animate__animated animate__tada" style="color:var(--gd); font-size:3rem; margin-top:30px; text-shadow:0 0 30px var(--gd);">CALIFICADO</h1>
+                <p style="color:#aaa;">Has sobrevivido. Espera a que termine la masacre.</p>
             `;
         }
 
-        function detenerJuegos() {
-            if(isDead) return;
-            document.getElementById('luz-indicador').style.display = 'none';
-            document.getElementById('game-instruction').innerText = "Descansa. Preparando la siguiente prueba...";
-            document.getElementById('game-content').innerHTML = "";
-        }
-
-        // Auto-login si ya existe la sesión
-        window.onload = () => { if(myId) startArena(); };
+        // Auto-rutear si ya hay sesión
+        window.onload = () => { if(myData.id) routeUser(); };
     </script>
 </body>
 </html>
