@@ -12,12 +12,15 @@
         :root { --pk: #ff2e63; --gr: #00ff41; --gd: #ffd700; --bk: #050505; --rd: #ff003c; --bl: #08d9d6; }
         
         * { box-sizing: border-box; }
-        body { background: var(--bk); color: white; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 10px; min-height: 100vh; overflow-x: hidden; user-select: none; touch-action: manipulation; }
+        body { background: var(--bk); color: white; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 10px; min-height: 100vh; overflow-x: hidden; user-select: none; touch-action: manipulation; position: relative; }
 
         /* UTILIDADES COMPACTAS */
         .card { background: rgba(15,15,15,0.9); border: 1px solid #333; border-radius: 10px; padding: 15px; margin-bottom: 10px; width: 100%; max-width: 500px; margin-left: auto; margin-right: auto; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
-        .logo { font-size: 1.8rem; letter-spacing: 8px; text-shadow: 0 0 10px var(--pk); text-align: center; color: white; margin-bottom: 15px; font-weight: 900; }
+        .logo { font-size: 1.8rem; letter-spacing: 8px; text-shadow: 0 0 10px var(--pk); text-align: center; color: white; margin-bottom: 15px; font-weight: 900; position: relative; }
         
+        .btn-logout { position: absolute; right: 10px; top: 10px; font-size: 1.5rem; cursor: pointer; background: rgba(255,255,255,0.1); border-radius: 50%; width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; border: 1px solid #444; z-index: 1000; }
+        .btn-logout:active { background: var(--rd); }
+
         input { width: 100%; padding: 12px; margin-bottom: 10px; background: #111; color: white; border: 1px solid #444; border-radius: 6px; font-size: 1rem; text-align: center; text-transform: uppercase; }
         input:focus { outline: none; border-color: var(--pk); }
 
@@ -28,12 +31,12 @@
         .btn-danger { border-color: var(--rd); background: rgba(255,0,0,0.1); color: var(--rd); }
         .btn-success { border-color: var(--gr); background: rgba(0,255,0,0.1); color: var(--gr); }
 
-        /* GRID COMPACTO PARA ADMIN */
+        /* GRID COMPACTO */
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
         .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
         .grid-3 button { padding: 10px 5px; font-size: 0.75rem; }
 
-        /* ESTADÍSTICAS EN LÍNEA */
+        /* ESTADÍSTICAS */
         .stats-row { display: flex; justify-content: space-between; align-items: center; background: #111; padding: 10px; border-radius: 6px; margin-bottom: 10px; font-family: monospace; font-size: 1.1rem; border: 1px solid #333; }
         
         /* ELEMENTOS DE JUEGO */
@@ -53,12 +56,12 @@
         .view { display: none; }
         .active-view { display: block; }
 
-        /* NUEVO: SISTEMA DE NOTIFICACIONES TOAST */
+        /* SISTEMA TOAST */
         #toast-container { position: fixed; top: 15px; left: 50%; transform: translateX(-50%); z-index: 10000; display: flex; flex-direction: column; gap: 10px; pointer-events: none; width: 90%; max-width: 400px; }
         .toast { background: rgba(15, 15, 15, 0.95); border: 1px solid #333; color: white; padding: 15px; border-radius: 8px; font-weight: bold; text-align: center; box-shadow: 0 5px 20px rgba(0,0,0,0.8); animation: slideDown 0.3s ease-out forwards; }
-        .toast.success { border-color: var(--gr); color: var(--gr); box-shadow: 0 5px 15px rgba(0,255,65,0.2); }
-        .toast.error { border-color: var(--rd); color: var(--rd); box-shadow: 0 5px 15px rgba(255,0,60,0.2); }
-        .toast.info { border-color: var(--bl); color: var(--bl); box-shadow: 0 5px 15px rgba(8,217,214,0.2); }
+        .toast.success { border-color: var(--gr); color: var(--gr); }
+        .toast.error { border-color: var(--rd); color: var(--rd); }
+        .toast.info { border-color: var(--bl); color: var(--bl); }
         @keyframes slideDown { from { top: -50px; opacity: 0; } to { top: 0; opacity: 1; } }
         .toast-fade { animation: fadeOut 0.4s forwards; }
         @keyframes fadeOut { to { opacity: 0; transform: translateY(-20px); } }
@@ -67,6 +70,8 @@
 <body>
 
     <div id="toast-container"></div>
+    
+    <div class="btn-logout" onclick="logout()" title="Cerrar Sesión / Cambiar Cuenta">🔄</div>
 
     <audio id="snd-shot" src="https://www.myinstants.com/media/sounds/m1-garand-ping.mp3" preload="auto"></audio>
     <audio id="snd-win" src="https://www.myinstants.com/media/sounds/level-up-sound-effect.mp3" preload="auto"></audio>
@@ -77,11 +82,11 @@
     <section id="view-login" class="card view active-view">
         <h3 style="text-align:center; font-size:1.1rem; margin-top:0;">SELECCIONA TU ROL</h3>
         <input type="text" id="username" placeholder="TU NOMBRE">
-        <button class="btn-fill" onpointerdown="login('PLAYER')">ENTRAR A LA ARENA</button>
-        <button class="btn-gold" onpointerdown="login('VIP')">GRADA VIP (ESPECTADOR)</button>
+        <button class="btn-fill" onclick="login('PLAYER')">ENTRAR A LA ARENA</button>
+        <button class="btn-gold" onclick="login('VIP')">GRADA VIP (ESPECTADOR)</button>
         <div style="border-top: 1px solid #333; margin-top: 15px; padding-top: 15px;">
-            <input type="password" id="admin-pass" placeholder="CÓDIGO GUARDIÁN (Opcional)">
-            <button class="btn-danger" onpointerdown="login('ADMIN')">PANEL DE CONTROL</button>
+            <input type="password" id="admin-pass" placeholder="CÓDIGO GUARDIÁN (1234)">
+            <button class="btn-danger" onclick="login('ADMIN')">PANEL DE CONTROL</button>
         </div>
     </section>
 
@@ -97,39 +102,35 @@
 
     <section id="view-admin" class="card view" style="border-color:var(--rd);">
         <h3 style="margin:0 0 10px 0; color:var(--rd); text-align:center;">🛡️ MANDO GLOBAL</h3>
-        
         <div class="stats-row">
             <span style="color:var(--gr);">VIVOS: <b id="a-alive">0</b></span>
             <span style="color:var(--gd);">ACTUAL: <b id="a-game">ESPERA</b></span>
             <span style="color:var(--rd);">MUERTOS: <b id="a-dead">0</b></span>
         </div>
-
         <div id="admin-contextual" style="background:rgba(255,255,255,0.05); padding:10px; border-radius:6px; margin-bottom:10px; display:none;">
             <div class="grid-2">
-                <button class="btn-success" onpointerdown="setGlobal('light', 'VERDE')">Luz Verde</button>
-                <button class="btn-danger" onpointerdown="setGlobal('light', 'ROJO')">Luz Roja</button>
+                <button class="btn-success" onclick="setGlobal('light', 'VERDE')">Luz Verde</button>
+                <button class="btn-danger" onclick="setGlobal('light', 'ROJO')">Luz Roja</button>
             </div>
         </div>
-
         <p style="font-size:0.8rem; color:#888; margin:5px 0;">INICIAR PRUEBA:</p>
         <div class="grid-3">
-            <button onpointerdown="setGame('ESPERA')" style="color:#aaa; border-color:#555;">0. Reset</button>
-            <button onpointerdown="setGame('LUZ ROJA')">1. L. Roja</button>
-            <button onpointerdown="setGame('DALGONA')">2. Dalgona</button>
-            <button onpointerdown="setGame('PUENTE')">3. Puente</button>
-            <button onpointerdown="setGame('TIPEO')">4. Tipeo</button>
-            <button onpointerdown="setGame('CANICAS')">5. Canicas</button>
-            <button onpointerdown="setGame('RULETA')">6. Ruleta</button>
-            <button onpointerdown="setGame('REFLEJOS')">7. Reflejos</button>
-            <button onpointerdown="setGame('CÁLIZ')">8. Cáliz</button>
+            <button onclick="setGame('ESPERA')" style="color:#aaa; border-color:#555;">0. Reset</button>
+            <button onclick="setGame('LUZ ROJA')">1. L. Roja</button>
+            <button onclick="setGame('DALGONA')">2. Dalgona</button>
+            <button onclick="setGame('PUENTE')">3. Puente</button>
+            <button onclick="setGame('TIPEO')">4. Tipeo</button>
+            <button onclick="setGame('CANICAS')">5. Canicas</button>
+            <button onclick="setGame('RULETA')">6. Ruleta</button>
+            <button onclick="setGame('REFLEJOS')">7. Reflejos</button>
+            <button onclick="setGame('CÁLIZ')">8. Cáliz</button>
         </div>
-
         <p style="font-size:0.8rem; color:#888; margin:15px 0 5px 0;">HERRAMIENTAS DIVINAS:</p>
         <div class="grid-2">
-            <button class="btn-danger" onpointerdown="killUnqualified()">☠️ Matar Lentos</button>
-            <button class="btn-success" onpointerdown="reviveAll()">✨ Revivir Todos</button>
-            <button style="border-color:#555; color:#aaa;" onpointerdown="fireSound('snd-siren')">🚨 Sirena</button>
-            <button style="border-color:#555; color:#aaa;" onpointerdown="fireSound('snd-shot')">🔫 Disparo</button>
+            <button class="btn-danger" onclick="killUnqualified()">☠️ Matar Lentos</button>
+            <button class="btn-success" onclick="reviveAll()">✨ Revivir Todos</button>
+            <button style="border-color:#555; color:#aaa;" onclick="fireSound('snd-siren')">🚨 Sirena</button>
+            <button style="border-color:#555; color:#aaa;" onclick="fireSound('snd-shot')">🔫 Disparo</button>
         </div>
     </section>
 
@@ -150,23 +151,25 @@
         let P = { id: localStorage.getItem('osg_id'), role: localStorage.getItem('osg_role'), status: 'ALIVE', prog: 0, qual: false };
         let G = { name: "ESPERA", light: "ROJO" };
 
-        // --- SISTEMA DE NOTIFICACIONES VISUALES ---
+        // --- SISTEMA TOAST ---
         function showNotification(msg, type = 'info') {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
             toast.className = `toast ${type}`;
             toast.innerText = msg;
             container.appendChild(toast);
-            
-            setTimeout(() => {
-                toast.classList.add('toast-fade');
-                setTimeout(() => toast.remove(), 400);
-            }, 3000);
+            setTimeout(() => { toast.classList.add('toast-fade'); setTimeout(() => toast.remove(), 400); }, 3000);
         }
 
         function switchView(viewId) {
             document.querySelectorAll('.view').forEach(v => v.classList.remove('active-view'));
             document.getElementById(viewId).classList.add('active-view');
+        }
+
+        function logout() {
+            localStorage.removeItem('osg_id');
+            localStorage.removeItem('osg_role');
+            location.reload(); // Recarga la página y vuelve limpia al Login
         }
 
         function unlockAudio() {
@@ -177,7 +180,7 @@
         }
         function playS(id) { let s = document.getElementById(id); s.currentTime=0; s.play().catch(()=>{}); }
 
-        // --- INGRESO ---
+        // --- LOGIN Y RUTEO ---
         function login(role) {
             const name = document.getElementById('username').value.trim().toUpperCase() || "ANÓNIMO";
             
@@ -185,13 +188,16 @@
                 if(document.getElementById('admin-pass').value !== "1234") {
                     return showNotification("❌ Código de Guardián incorrecto", "error");
                 }
-                P.role = "ADMIN"; switchView('view-admin'); initAdmin(); 
+                localStorage.setItem('osg_role', 'ADMIN');
+                P.role = "ADMIN"; 
+                switchView('view-admin'); 
+                initAdmin(); 
                 showNotification("🛡️ Acceso de Guardián concedido", "success");
                 return;
             }
 
             if(role === 'PLAYER' && name === "ANÓNIMO") {
-                return showNotification("⚠️ Debes escribir tu nombre para entrar a la arena", "error");
+                return showNotification("⚠️ Debes escribir tu nombre para jugar", "error");
             }
 
             unlockAudio();
@@ -204,7 +210,8 @@
         }
 
         function routeUser() {
-            if(P.role === 'ADMIN') return switchView('view-admin');
+            if(!P.role) return; // Si no hay rol, se queda en Login
+            if(P.role === 'ADMIN') { switchView('view-admin'); initAdmin(); return; }
             
             if(P.role === 'VIP' || P.status === 'DEAD') {
                 switchView('view-vip');
@@ -223,7 +230,7 @@
             }
         }
 
-        // --- LÓGICA DEL GUARDIÁN (ADMIN) ---
+        // --- ADMIN ---
         function initAdmin() {
             db.ref('state/game').on('value', s => { 
                 G.name = s.val() || 'ESPERA'; 
@@ -235,20 +242,11 @@
                 document.getElementById('a-alive').innerText = a; document.getElementById('a-dead').innerText = d;
             });
         }
-        function setGame(g) { 
-            db.ref('state').update({ game: g, light: "ROJO" }); 
-            showNotification(`🎮 Juego cambiado a: ${g}`, "info");
-        }
+        function setGame(g) { db.ref('state').update({ game: g, light: "ROJO" }); showNotification(`🎮 Juego cambiado a: ${g}`, "info"); }
         function setGlobal(key, val) { db.ref('state/' + key).set(val); }
-        function fireSound(snd) { 
-            db.ref('state/snd').set({ id: snd, t: Date.now() }); 
-            showNotification(`🔊 Efecto de sonido activado`, "info");
-        }
-        
+        function fireSound(snd) { db.ref('state/snd').set({ id: snd, t: Date.now() }); showNotification(`🔊 Efecto disparado`, "info"); }
         function killUnqualified() {
-            db.ref('players').once('value', snap => {
-                snap.forEach(child => { if(child.val().st === 'ALIVE' && !child.val().q) db.ref('players/'+child.key+'/st').set('DEAD'); });
-            });
+            db.ref('players').once('value', snap => { snap.forEach(child => { if(child.val().st === 'ALIVE' && !child.val().q) db.ref('players/'+child.key+'/st').set('DEAD'); }); });
             showNotification("☠️ Jugadores lentos eliminados.", "error");
         }
         function reviveAll() {
@@ -256,7 +254,7 @@
             showNotification("✨ Todos han sido revividos.", "success");
         }
 
-        // --- LÓGICA VIP / STATS ---
+        // --- VIP ---
         function initVIP() {
             db.ref('state/game').on('value', s => document.getElementById('v-game').innerText = s.val() || 'ESPERA');
             db.ref('players').on('value', s => {
@@ -265,7 +263,7 @@
             });
         }
 
-        // --- MOTOR DEL JUGADOR ---
+        // --- JUGADOR ---
         function initPlayer() {
             db.ref('state/snd').on('value', s => { if(s.val()) playS(s.val().id); });
             
@@ -276,7 +274,8 @@
                 if(window.lastG !== G.name) {
                     P.prog = 0; P.qual = false; window.lastG = G.name;
                     document.getElementById('view-player').classList.remove('win-screen');
-                    db.ref('players/'+P.id+'/q').set(false); // Reinicia su estado de calificación en DB
+                    db.ref('players/'+P.id+'/q').set(false);
+                    clearTimeout(window.reflejoTimer); // Limpiar timers si cambia de juego
                 }
                 renderUI();
             });
@@ -301,8 +300,7 @@
             switch(G.name) {
                 case "LUZ ROJA":
                     d.innerText = "Meta: 100 Pasos. Luz verde avanzas.";
-                    c.innerHTML = `
-                        <div class="luz ${G.light === 'VERDE' ? 'luz-verde' : 'luz-roja'}"></div>
+                    c.innerHTML = `<div class="luz ${G.light === 'VERDE' ? 'luz-verde' : 'luz-roja'}"></div>
                         <div class="bar-bg"><div class="bar-fill" style="width:${P.prog}%"></div></div>
                         <button class="btn-fill" onpointerdown="actLuz()" style="height:70px; font-size:1.5rem;">AVANZAR</button>`;
                     break;
@@ -324,27 +322,15 @@
                 case "TIPEO":
                     d.innerText = "Escribe: EXPECTO PATRONUM";
                     c.innerHTML = `<input type="text" id="i-spell" autocomplete="off" style="margin-top:15px;">
-                        <button class="btn-fill" onpointerdown="actTip()">LANZAR HECHIZO</button>`;
+                        <button class="btn-fill" onclick="actTip()">LANZAR HECHIZO</button>`;
                     break;
-                default:
-                    d.innerText = "Espera indicaciones del Guardián.";
-                    c.innerHTML = `<div style="font-size:4rem; margin-top:20px; animation: pulse 2s infinite; color:#555;">⏳</div>`;
-            }
-        }
-
-        // --- ACCIONES LOCALES ---
-        function die() { db.ref('players/' + P.id).update({ st: "DEAD" }); }
-        function win() { 
-            P.qual = true; db.ref('players/' + P.id).update({ q: true }); playS('snd-win');
-            showWin(); 
-        }
-        function showWin() {
-            document.getElementById('view-player').classList.add('win-screen');
-            document.getElementById('p-game-desc').innerText = "";
-            document.getElementById('p-canvas').innerHTML = `
-                <h1 style="color:var(--gd); font-size:2.5rem; margin-top:30px;">CALIFICADO</h1>
-                <p style="color:#aaa;">Sobreviviste esta ronda.</p>`;
-        }
-
-        // Lógicas de Juegos
-        function actLuz() { 
+                case "CANICAS":
+                    d.innerText = `Adivina Par o Impar contra el sistema.\nINTENTO: ${P.prog}/3`;
+                    c.innerHTML = `<div class="grid-2" style="margin-top:20px;">
+                        <button onpointerdown="actCan(0)" style="height:90px;">PARES</button>
+                        <button onpointerdown="actCan(1)" style="height:90px;">NONES</button>
+                    </div>`;
+                    break;
+                case "REFLEJOS":
+                    d.innerText = "Toca el escudo que aparezca en menos de 1 segundo.";
+                    c.innerHTML = `<button id="btn-reflejo" onpointerd
