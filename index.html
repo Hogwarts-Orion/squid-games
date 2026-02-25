@@ -3,327 +3,258 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ORION SYSTEM | THE ULTIMATE TOURNAMENT</title>
+    <title>ORION SQUID GAMES 2.0 | TOURNAMENT</title>
+    
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
     <style>
-        :root { --pk: #ff2e63; --gr: #00ff41; --gd: #ffd700; --bk: #050505; --rd: #ff003c; --bl: #08d9d6; }
-        
-        body { 
-            background: var(--bk); color: white; font-family: 'Segoe UI', Roboto, sans-serif; 
-            margin: 0; padding: 15px; display: flex; flex-direction: column; align-items: center; 
-            min-height: 100vh; user-select: none; overflow-x: hidden;
-            background-image: radial-gradient(circle, #1a1a1a 1px, transparent 1px); background-size: 30px 30px;
+        :root {
+            --pink: #ff2e63; --green: #00ff41; --gold: #ffd700;
+            --dark: #070707; --red: #ff003c; --blue: #08d9d6;
         }
 
-        /* EFECTO MONITOR CRT Y CRISTAL */
-        body::before {
-            content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(rgba(18,16,16,0) 50%, rgba(0,0,0,0.15) 50%);
-            background-size: 100% 3px; pointer-events: none; z-index: 50;
+        body {
+            background: radial-gradient(circle at center, #1a1a1a 0%, var(--dark) 100%);
+            color: white; font-family: 'Courier New', monospace; margin: 0;
+            display: flex; flex-direction: column; align-items: center;
+            padding: 20px; min-height: 100vh; overflow-x: hidden;
+            user-select: none; /* Evita seleccionar texto por error en móviles */
         }
 
-        .card { 
-            background: rgba(15, 15, 15, 0.85); backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 46, 99, 0.3); border-radius: 15px; 
-            padding: 25px; width: 100%; max-width: 600px; margin-bottom: 20px; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.8); box-sizing: border-box; text-align: center; 
-            position: relative; z-index: 10;
+        /* EFECTO CRISTAL PREMIUM */
+        .card {
+            background: rgba(15, 15, 15, 0.7); border: 1px solid rgba(255, 46, 99, 0.3);
+            border-radius: 15px; padding: 30px; width: 100%; max-width: 600px;
+            margin-bottom: 20px; box-sizing: border-box; backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8); transition: all 0.5s ease;
         }
 
-        .logo { font-size: 2.5rem; letter-spacing: 15px; text-shadow: 0 0 15px var(--pk); cursor: pointer; margin-bottom: 20px; }
-        
-        button { 
-            width: 100%; padding: 15px; margin: 8px 0; background: transparent; 
-            border: 2px solid var(--pk); color: var(--pk); font-weight: 900; 
-            cursor: pointer; border-radius: 8px; text-transform: uppercase; 
-            transition: 0.3s; font-size: 1rem; letter-spacing: 2px;
+        .logo { 
+            font-size: 3rem; letter-spacing: 15px; text-shadow: 0 0 20px var(--pink); 
+            text-align: center; cursor: pointer; margin-bottom: 10px;
+            animation: pulse 2s infinite;
         }
-        button:hover, button:active { background: var(--pk); color: white; box-shadow: 0 0 15px var(--pk); transform: scale(0.98); }
-        button:disabled { border-color: #333; color: #555; background: transparent; box-shadow: none; cursor: not-allowed; }
+
+        h1 { margin: 0 0 20px 0; text-align: center; font-size: 1.5rem; letter-spacing: 5px; }
 
         input {
-            width: 100%; padding: 15px; background: rgba(0,0,0,0.5); color: white; 
-            border: 1px solid #444; margin-bottom: 15px; border-radius: 8px; 
-            box-sizing: border-box; font-size: 1.2rem; text-align: center; text-transform: uppercase;
+            width: 100%; padding: 15px; margin-bottom: 15px; background: rgba(0,0,0,0.6); 
+            color: white; border: 1px solid #444; border-radius: 8px; font-size: 1.2rem;
+            text-align: center; text-transform: uppercase; box-sizing: border-box;
+            transition: 0.3s;
         }
-        input:focus { outline: none; border-color: var(--pk); box-shadow: 0 0 10px rgba(255,46,99,0.5); }
+        input:focus { outline: none; border-color: var(--pink); box-shadow: 0 0 15px rgba(255,46,99,0.5); }
 
-        #game-viewport { 
-            min-height: 350px; border: 1px solid #333; border-radius: 10px; padding: 20px; 
-            display: flex; flex-direction: column; align-items: center; justify-content: center; 
-            background: rgba(0,0,0,0.6); position: relative; margin-top: 15px;
+        button {
+            width: 100%; padding: 18px; margin: 8px 0; background: transparent; 
+            border: 2px solid var(--pink); color: var(--pink); font-size: 1.1rem;
+            font-weight: 900; cursor: pointer; border-radius: 8px; text-transform: uppercase;
+            transition: 0.2s; letter-spacing: 2px;
         }
-        
-        /* ESTADOS */
-        .qualified { color: var(--gd); font-size: 3rem; text-shadow: 0 0 30px var(--gd); font-weight: 900; }
-        .eliminated { color: var(--rd); font-size: 3rem; text-shadow: 0 0 30px var(--rd); font-weight: 900; }
-        .death-flash { animation: flashRed 0.5s ease-out; }
+        button:active { transform: scale(0.95); background: var(--pink); color: white; }
 
-        @keyframes flashRed { 0% { background-color: var(--rd); } 100% { background-color: transparent; } }
+        /* LUZ VISUAL MEJORADA */
+        #luz-indicador {
+            width: 120px; height: 120px; border-radius: 50%;
+            margin: 30px auto; border: 6px solid #111;
+            transition: background-color 0.1s, box-shadow 0.1s;
+        }
 
-        /* BARRAS DE PROGRESO */
-        .progress-container { width: 100%; background: #111; height: 15px; border-radius: 8px; margin: 15px 0; border: 1px solid #333; overflow: hidden; }
-        .progress-bar { height: 100%; background: var(--gr); width: 0%; transition: width 0.2s ease, background-color 0.3s; box-shadow: 0 0 10px var(--gr); }
+        .luz-roja { background-color: var(--red); box-shadow: 0 0 60px var(--red); }
+        .luz-verde { background-color: var(--green); box-shadow: 0 0 60px var(--green); }
 
-        /* ADMIN */
-        #admin-panel { border-color: var(--rd); display: none; }
-        .admin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .admin-btn { border-color: #555; color: #ccc; }
-        .admin-btn:hover { background: #333; border-color: white; box-shadow: none; }
-        .luz { width: 80px; height: 80px; border-radius: 50%; margin-bottom: 15px; box-shadow: 0 0 20px rgba(0,0,0,0.5); transition: 0.3s; }
-        
-        .header-info { display:flex; justify-content:space-between; font-family: 'Courier New'; font-weight: bold; border-bottom: 1px solid #333; padding-bottom: 10px; margin-bottom: 10px; }
+        /* ADMIN PANEL */
+        #admin-panel { border-color: var(--red); display: none; }
+        .admin-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
+
+        /* MODO VIP (ELIMINADOS) */
+        .vip-mode { 
+            border-color: var(--gold) !important; 
+            background: linear-gradient(135deg, rgba(20,0,0,0.9), rgba(26,0,51,0.9)) !important; 
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.2);
+        }
+
+        @keyframes pulse { 0% { text-shadow: 0 0 15px var(--pink); } 50% { text-shadow: 0 0 25px var(--pink), 0 0 40px var(--pink); } 100% { text-shadow: 0 0 15px var(--pink); } }
     </style>
 </head>
 <body>
 
-<header onclick="openAdmin()">
-    <div class="logo">🔺⚪🟦</div>
-</header>
+    <header>
+        <div class="logo">🔺⚪🟦</div>
+        <h1>ORION <span style="color:var(--pink)">SYSTEM</span></h1>
+    </header>
 
-<section id="auth" class="card animate__animated animate__fadeIn">
-    <h3 style="color:var(--pk); letter-spacing: 2px;">FIRMA TU CONTRATO</h3>
-    <p style="color:#aaa; font-size:0.9rem;">Ingresa tu nombre de Mago para entrar al torneo.</p>
-    <input type="text" id="nick" placeholder="TU NOMBRE" autocomplete="off">
-    <button onclick="join()">INGRESAR A LA ARENA</button>
-</section>
+    <section id="auth-screen" class="card animate__animated animate__fadeIn">
+        <h3 style="text-align:center; color: #aaa;">SOLICITUD DE ACCESO</h3>
+        <input type="text" id="username" placeholder="TU NOMBRE DE MAGO" autocomplete="off">
+        <button onpointerdown="joinGame()" style="background:var(--pink); color:white;">ACEPTAR CONTRATO</button>
+    </section>
 
-<section id="arena" class="card" style="display:none;">
-    <div class="header-info">
-        <span id="p-info" style="color:var(--bl);">#--- | JUGADOR</span>
-        <span id="p-st" style="color:var(--gr);">VIVO</span>
-    </div>
-
-    <div id="game-viewport">
-        <h2 id="g-title" style="letter-spacing: 3px; color: #fff;">CONECTANDO...</h2>
-        <div id="g-main" style="width: 100%; text-align: center;"></div>
-        <div id="g-meta" style="width:100%"></div>
-    </div>
-</section>
-
-<section id="admin-panel" class="card">
-    <h3 style="color:var(--rd); text-shadow: 0 0 10px var(--rd);">🛡️ PANEL DEL GUARDIÁN</h3>
-    
-    <div id="admin-luz-controls" style="display:none; background: rgba(255,0,0,0.1); padding: 15px; border-radius: 10px; margin-bottom: 15px;">
-        <h4 style="margin:0 0 10px 0;">Control de Muñeca</h4>
-        <div style="display:flex; gap:10px;">
-            <button onclick="setGlobalColor('VERDE')" style="background:var(--gr); color:black; border:none;">🟢 LUZ VERDE</button>
-            <button onclick="setGlobalColor('ROJO')" style="background:var(--rd); color:white; border:none;">🔴 LUZ ROJA</button>
+    <section id="main-arena" class="card" style="display:none;">
+        <div style="display:flex; justify-content:space-between; border-bottom: 1px solid #333; padding-bottom: 15px; margin-bottom: 20px;">
+            <h2 id="p-number" style="margin:0; font-size:1.5rem; color:var(--blue);">#000</h2>
+            <span id="p-status" style="color:var(--green); font-weight:bold; font-size:1.2rem;">● VIVO</span>
         </div>
-    </div>
 
-    <div class="admin-grid">
-        <button class="admin-btn" onclick="setG('SALA DE ESPERA')">ESPERA / RESET</button>
-        <button class="admin-btn" onclick="setG('Luz Roja Luz Verde')">1. LUZ ROJA</button>
-        <button class="admin-btn" onclick="setG('Puente de Cristal')">2. PUENTE</button>
-        <button class="admin-btn" onclick="setG('Dalgona')">3. DALGONA</button>
-        <button class="admin-btn" onclick="setG('Tira y Afloja')">4. CUERDA</button>
-        <button class="admin-btn" onclick="setG('Canicas')">5. CANICAS</button>
-        <button class="admin-btn" onclick="setG('Duelo de Hechizos')">6. DUELOS</button>
-        <button class="admin-btn" onclick="setG('Tipeo Mortal')">7. TIPEO</button>
-        <button class="admin-btn" onclick="setG('Beso del Dementor')">8. DEMENTOR</button>
-        <button class="admin-btn" onclick="setG('El Cáliz')">9. CÁLIZ</button>
-        <button class="admin-btn" style="border-color:var(--gd); color:var(--gd);" onclick="setG('Final Squid Game')">10. FINAL</button>
-    </div>
-</section>
+        <div id="game-viewport" style="text-align:center; min-height: 250px;">
+            <h2 id="game-title" style="letter-spacing: 3px;">SALA DE ESPERA</h2>
+            <div id="luz-indicador" style="display:none;"></div>
+            <p id="game-instruction" style="color:#aaa;">Esperando inicio del Torneo...</p>
+            <div id="game-content"></div>
+        </div>
+    </section>
 
-<script>
-const config = { databaseURL: "https://squid-games-24283-default-rtdb.firebaseio.com/" };
-if (!firebase.apps.length) { firebase.initializeApp(config); }
-const db = firebase.database();
-
-let myId = localStorage.getItem('o_id'), isDead = false, qualified = false, progress = 0, adminClks = 0;
-let globalColor = "ROJO"; // Para luz roja
-
-function openAdmin() { adminClks++; if(adminClks >= 5) document.getElementById('admin-panel').style.display = 'block'; }
-
-function setG(n) { 
-    db.ref('state').update({ game: n, ts: Date.now() }); 
-    // Mostrar controles extra para Luz Roja en admin
-    document.getElementById('admin-luz-controls').style.display = (n === 'Luz Roja Luz Verde') ? 'block' : 'none';
-}
-function setGlobalColor(color) { db.ref('state').update({ color: color }); }
-
-function join() {
-    const n = document.getElementById('nick').value.toUpperCase(); if(!n) return;
-    myId = "u_" + Date.now(); localStorage.setItem('o_id', myId);
-    db.ref('players/'+myId).set({ name: n, st: "ALIVE", num: Math.floor(Math.random()*456+1), act: "" });
-    document.getElementById('auth').style.display='none';
-    start();
-}
-
-function start() {
-    if(document.getElementById('auth').style.display !== 'none') document.getElementById('auth').style.display='none';
-    document.getElementById('arena').style.display='block';
-    
-    // Escuchar Estado Global (El Juego actual)
-    db.ref('state').on('value', snap => {
-        const s = snap.val() || {game: 'SALA DE ESPERA', color: 'ROJO'};
-        globalColor = s.color || "ROJO";
-        qualified = false; progress = 0; 
+    <section id="admin-panel" class="card">
+        <h3 style="color:var(--red); text-align:center; text-shadow:0 0 10px var(--red);">🛡️ MODO GUARDIÁN</h3>
         
-        // Actualizar UI de Luz Roja si estamos en ese juego
-        const luzElement = document.getElementById('l');
-        const progressBar = document.getElementById('pb');
-        if(luzElement) {
-            luzElement.style.background = (globalColor === 'VERDE') ? 'var(--gr)' : 'var(--rd)';
-            luzElement.style.boxShadow = `0 0 30px ${(globalColor === 'VERDE') ? 'var(--gr)' : 'var(--rd)'}`;
-            if(progressBar) progressBar.style.background = (globalColor === 'VERDE') ? 'var(--gr)' : 'var(--rd)';
+        <button onpointerdown="adminSetGame('Luz Roja, Luz Verde')" style="border-color:white; color:white;">ACTIVAR: LUZ ROJA/VERDE</button>
+        
+        <div id="admin-light-controls" class="admin-controls" style="display:none; background: rgba(0,0,0,0.5); padding: 15px; border-radius: 10px;">
+            <button onpointerdown="adminSetLight('VERDE')" style="background:var(--green); color:black; border:none;">🟢 VERDE</button>
+            <button onpointerdown="adminSetLight('ROJO')" style="background:var(--red); color:white; border:none;">🔴 ROJO</button>
+        </div>
+
+        <button onpointerdown="adminSetGame('SALA DE ESPERA')" style="background:#222; border-color:#444; color:#888; margin-top:15px;">DETENER JUEGO</button>
+        <button onpointerdown="location.reload()" style="border-color:#444; color:#888;">CERRAR PANEL</button>
+    </section>
+
+    <script>
+        // CONFIGURACIÓN FIREBASE
+        const firebaseConfig = { databaseURL: "https://squid-games-24283-default-rtdb.firebaseio.com/" };
+        if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+        const db = firebase.database();
+
+        let myId = localStorage.getItem('orion_id');
+        let currentLuzLocal = "ROJO";
+        let isDead = false;
+        let adminClicks = 0;
+
+        // PANEL SECRETO (5 CLICS EN EL LOGO)
+        document.querySelector('.logo').onclick = () => {
+            adminClicks++;
+            if(adminClicks === 5) document.getElementById('admin-panel').style.display = 'block';
+        };
+
+        // FUNCIONES DE ADMIN
+        function adminSetGame(name) { 
+            db.ref('state/current_game').set(name); 
+            db.ref('state/light_color').set("ROJO"); // Inicia siempre en rojo por seguridad
+            document.getElementById('admin-light-controls').style.display = (name === 'Luz Roja, Luz Verde') ? 'grid' : 'none';
         }
-        
-        render(s.game);
-    });
+        function adminSetLight(color) { db.ref('state/light_color').set(color); }
 
-    // Escuchar Mi Estado (Vivo/Muerto)
-    db.ref('players/'+myId).on('value', snap => {
-        const p = snap.val();
-        if(!p) return;
-        document.getElementById('p-info').innerText = `#${p.num} | ${p.name}`;
-        
-        if(p.st === "DEAD" && !isDead) { 
-            isDead = true; 
-            document.body.classList.add('death-flash');
-            renderEliminated(); 
-        } else if (p.st === "ALIVE") {
-            isDead = false;
-            document.getElementById('p-st').innerText = "VIVO"; 
-            document.getElementById('p-st').style.color = "var(--gr)";
+        // INGRESO DEL JUGADOR
+        function joinGame() {
+            const name = document.getElementById('username').value.trim().toUpperCase();
+            if(!name) { alert("Debes ingresar tu nombre."); return; }
+            
+            myId = "user_" + Date.now();
+            const playerNumber = Math.floor(Math.random()*456 + 1).toString().padStart(3,'0');
+            
+            localStorage.setItem('orion_id', myId);
+            db.ref('players/' + myId).set({ name: name, number: playerNumber, status: "ALIVE" });
+            
+            startArena();
         }
-    });
-}
 
-function render(game) {
-    if(isDead) { renderEliminated(); return; }
-    if(qualified) { win(); return; } // Mantiene pantalla de victoria si ya calificó en esta ronda
+        // CARGA DE LA ARENA
+        function startArena() {
+            document.getElementById('auth-screen').style.display = 'none';
+            document.getElementById('main-arena').style.display = 'block';
+            
+            // Cargar datos del jugador (por si recargó la página)
+            db.ref('players/' + myId).once('value', snap => {
+                if(snap.exists()) {
+                    document.getElementById('p-number').innerText = "#" + snap.val().number;
+                    if(snap.val().status === "DEAD") setVip();
+                }
+            });
 
-    const main = document.getElementById('g-main'), meta = document.getElementById('g-meta');
-    document.getElementById('g-title').innerText = game;
-    main.innerHTML = ""; meta.innerHTML = ""; 
+            listenToData();
+        }
 
-    switch(game) {
-        case "Luz Roja Luz Verde":
-            main.innerHTML = `<div id="l" class="luz" style="background:${globalColor==='VERDE'?'var(--gr)':'var(--rd)'}; margin: 0 auto 20px auto;"></div>`;
-            meta.innerHTML = `
-                <div class="progress-container"><div id="pb" class="progress-bar"></div></div>
-                <button onpointerdown="moveLR()">AVANZAR (PASOS: <span id="pc">0</span>/100)</button>`;
-            break;
+        // ESCUCHA EN TIEMPO REAL (FIREBASE)
+        function listenToData() {
+            // Escuchar cambios en el juego
+            db.ref('state/current_game').on('value', snap => {
+                const game = snap.val() || "SALA DE ESPERA";
+                document.getElementById('game-title').innerText = game;
+                
+                if(game === 'Luz Roja, Luz Verde' && !isDead) {
+                    iniciarLuzRojaVerde();
+                } else if (!isDead) {
+                    detenerJuegos();
+                }
+            });
 
-        case "Puente de Cristal":
-            main.innerHTML = '<p style="color:#aaa; font-size:1.1rem; margin-bottom:20px;">Cruza 10 baldosas sin caer. Solo los más valientes sobreviven.</p>';
-            meta.innerHTML = `
-                <div id="pb-c" style="font-size:1.5rem; font-weight:bold; margin-bottom:15px; color:var(--gd);">Baldosa: 0/10</div>
-                <div class="admin-grid">
-                    <button onpointerdown="stepB()" style="border-color:var(--bl); color:var(--bl);">IZQ</button>
-                    <button onpointerdown="stepB()" style="border-color:var(--bl); color:var(--bl);">DER</button>
-                </div>`;
-            break;
+            // Escuchar el color de la luz (Sincronizado para todos)
+            db.ref('state/light_color').on('value', snap => {
+                currentLuzLocal = snap.val() || "ROJO";
+                const luz = document.getElementById('luz-indicador');
+                if(luz && luz.style.display === 'block') {
+                    luz.className = (currentLuzLocal === "VERDE") ? "luz-verde" : "luz-roja";
+                }
+            });
 
-        case "Dalgona":
-            main.innerHTML = '<p style="color:#aaa; font-size:1.1rem; margin-bottom:20px;">Extrae la figura.<br><b style="color:white">Mantén presionado EXACTAMENTE 3 segundos.</b></p>';
-            meta.innerHTML = '<button id="btn-dalgona" onpointerdown="sD()" onpointerup="eD()" onpointerleave="eD()">👉 MANTENER PRESIONADO 👈</button>';
-            break;
+            // Escuchar mi estado de vida
+            db.ref('players/' + myId + '/status').on('value', snap => {
+                if(snap.val() === "DEAD" && !isDead) {
+                    isDead = true;
+                    setVip();
+                }
+            });
+        }
 
-        case "Duelo de Hechizos":
-            main.innerHTML = '<p style="color:#aaa; margin-bottom:20px;">Prepárate para el PvP. Elige tu magia.</p>';
-            meta.innerHTML = `
-                <button onpointerdown="act('Atq')" style="border-color:var(--rd); color:var(--rd);">🔥 ATAQUE (Expelliarmus)</button>
-                <button onpointerdown="act('Def')" style="border-color:var(--bl); color:var(--bl);">🛡️ DEFENSA (Protego)</button>
-                <button onpointerdown="act('Sig')" style="border-color:var(--gr); color:var(--gr);">🐍 SIGILO (Desmaius)</button>`;
-            break;
+        // LÓGICA DE JUEGOS
+        function iniciarLuzRojaVerde() {
+            const luz = document.getElementById('luz-indicador');
+            luz.style.display = 'block';
+            document.getElementById('game-instruction').innerText = "Presiona AVANZAR solo cuando la luz esté verde.";
+            
+            // Nota: Uso onpointerdown porque responde al instante en pantallas táctiles, onmousedown tiene lag.
+            document.getElementById('game-content').innerHTML = `
+                <button onpointerdown="intentarMover()" style="height:80px; font-size:1.5rem; background: rgba(255, 255, 255, 0.1); margin-top: 20px;">
+                    AVANZAR 🏃‍♂️
+                </button>`;
+        }
 
-        case "Tipeo Mortal":
-            main.innerHTML = '<p style="color:#aaa;">Escribe el hechizo protector a la perfección.</p>';
-            meta.innerHTML = `
-                <input type="text" id="spell-input" placeholder="Hechizo aquí...">
-                <button onpointerdown="checkSpell()">LANZAR HECHIZO</button>`;
-            break;
+        function intentarMover() {
+            if(isDead) return;
+            
+            if(currentLuzLocal === "ROJO") {
+                document.body.style.background = "var(--red)"; // Flash rojo de muerte
+                setTimeout(() => { document.body.style.background = ""; }, 300);
+                db.ref('players/' + myId).update({ status: "DEAD" });
+            } else {
+                // Efecto visual al avanzar en verde
+                const btn = document.querySelector('#game-content button');
+                btn.style.background = "var(--green)";
+                btn.style.color = "black";
+                setTimeout(() => { btn.style.background = "rgba(255, 255, 255, 0.1)"; btn.style.color = "var(--pink)"; }, 150);
+            }
+        }
 
-        case "SALA DE ESPERA":
-            main.innerHTML = '<div class="animate__animated animate__pulse animate__infinite" style="font-size:3rem;">⏳</div>';
-            meta.innerHTML = '<p style="color:#aaa;">Descansa y haz alianzas. El Guardián abrirá la arena pronto.</p>';
-            break;
+        function setVip() {
+            document.getElementById('main-arena').classList.add('vip-mode', 'animate__animated', 'animate__pulse');
+            document.getElementById('p-status').innerText = "● ELIMINADO";
+            document.getElementById('p-status').style.color = "var(--red)";
+            document.getElementById('game-viewport').innerHTML = `
+                <h2 style='color:var(--gold); font-size: 2.5rem; text-shadow: 0 0 20px var(--gold);'>SECTOR VIP</h2>
+                <p style="color: #ccc; font-size: 1.1rem;">Tu Mago ha caído. Observa cómo sufren los demás.</p>
+            `;
+        }
 
-        default: 
-            main.innerHTML = "<p style='color:var(--gd);'>Prueba en preparación...</p>";
-            meta.innerHTML = "<p>Espera instrucciones del Guardián.</p>";
-    }
-}
+        function detenerJuegos() {
+            if(isDead) return;
+            document.getElementById('luz-indicador').style.display = 'none';
+            document.getElementById('game-instruction').innerText = "Descansa. Preparando la siguiente prueba...";
+            document.getElementById('game-content').innerHTML = "";
+        }
 
-// --- LOGICA LUZ ROJA (SINCRONIZADA) ---
-// Ahora depende de la base de datos (globalColor) que cambia el admin
-function moveLR() {
-    if(globalColor === "ROJO") {
-        die();
-    } else {
-        progress++; 
-        document.getElementById('pc').innerText = progress;
-        document.getElementById('pb').style.width = progress + "%";
-        if(progress >= 100) win();
-    }
-}
-
-// --- LOGICA PUENTE ---
-function stepB() {
-    // Reduje la letalidad de 40% a 20% para que al menos alguien gane en grupos pequeños.
-    if(Math.random() < 0.20) die();
-    else {
-        progress++; 
-        document.getElementById('pb-c').innerText = `Baldosa: ${progress}/10`;
-        if(progress >= 10) win();
-    }
-}
-
-// --- LOGICA DALGONA ---
-let startT;
-function sD() { 
-    startT = Date.now(); 
-    document.getElementById('btn-dalgona').style.background = 'var(--pk)';
-    document.getElementById('btn-dalgona').style.color = 'white';
-}
-function eD() {
-    if(!startT) return; // Evita que se dispare si no se hizo click
-    let diff = Date.now() - startT;
-    startT = null;
-    
-    // Entre 2.8s y 3.2s
-    if(diff > 2800 && diff < 3200) win(); 
-    else die();
-}
-
-// --- LOGICA DUELO Y EXTRA ---
-function act(a) { 
-    db.ref('players/'+myId).update({act: a}); 
-    document.getElementById('g-main').innerHTML = `<h3 style="color:var(--bl)">Acción fijada: ${a}</h3><p>Esperando resolución del Guardián...</p>`;
-    document.getElementById('g-meta').innerHTML = "";
-}
-
-function checkSpell() {
-    const spell = document.getElementById('spell-input').value.trim().toLowerCase();
-    if(spell === "expecto patronum") win(); else die();
-}
-
-function die() { 
-    db.ref('players/'+myId).update({st: "DEAD"}); 
-}
-
-function win() { 
-    qualified = true;
-    document.getElementById('game-viewport').innerHTML = `
-        <h1 class="qualified animate__animated animate__tada">CALIFICADO</h1>
-        <p style="color:#aaa;">Has sobrevivido a esta prueba. Descansa tu varita.</p>`;
-}
-
-function renderEliminated() {
-    document.getElementById('game-viewport').innerHTML = `
-        <h1 class="eliminated animate__animated animate__zoomIn">ELIMINADO</h1>
-        <p style="color:#aaa;">Tu participación en el torneo ha concluido.</p>`;
-    document.getElementById('p-st').innerText = "MUERTO"; 
-    document.getElementById('p-st').style.color = "var(--rd)";
-}
-
-window.onload = () => { if(myId) start(); };
-</script>
+        // Auto-login si ya existe la sesión
+        window.onload = () => { if(myId) startArena(); };
+    </script>
 </body>
 </html>
