@@ -3,113 +3,327 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ORION SYSTEM | SURVIVAL</title>
+    <title>ORION SYSTEM | THE ULTIMATE TOURNAMENT</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     <style>
-        :root { --pk: #ff2e63; --gr: #00ff41; --rd: #ff003c; --bk: #050505; }
+        :root { --pk: #ff2e63; --gr: #00ff41; --gd: #ffd700; --bk: #050505; --rd: #ff003c; --bl: #08d9d6; }
+        
         body { 
             background: var(--bk); color: white; font-family: 'Segoe UI', Roboto, sans-serif; 
-            margin: 0; overflow: hidden; height: 100vh; display: flex; flex-direction: column;
-            user-select: none; /* Evita que seleccionen texto por error */
+            margin: 0; padding: 15px; display: flex; flex-direction: column; align-items: center; 
+            min-height: 100vh; user-select: none; overflow-x: hidden;
+            background-image: radial-gradient(circle, #1a1a1a 1px, transparent 1px); background-size: 30px 30px;
         }
-        /* EFECTO MONITOR CRT */
+
+        /* EFECTO MONITOR CRT Y CRISTAL */
         body::before {
-            content: " "; display: block; position: absolute; top: 0; left: 0; bottom: 0; right: 0;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
-            z-index: 2; background-size: 100% 2px, 3px 100%; pointer-events: none;
+            content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(rgba(18,16,16,0) 50%, rgba(0,0,0,0.15) 50%);
+            background-size: 100% 3px; pointer-events: none; z-index: 50;
+        }
+
+        .card { 
+            background: rgba(15, 15, 15, 0.85); backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 46, 99, 0.3); border-radius: 15px; 
+            padding: 25px; width: 100%; max-width: 600px; margin-bottom: 20px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8); box-sizing: border-box; text-align: center; 
+            position: relative; z-index: 10;
+        }
+
+        .logo { font-size: 2.5rem; letter-spacing: 15px; text-shadow: 0 0 15px var(--pk); cursor: pointer; margin-bottom: 20px; }
+        
+        button { 
+            width: 100%; padding: 15px; margin: 8px 0; background: transparent; 
+            border: 2px solid var(--pk); color: var(--pk); font-weight: 900; 
+            cursor: pointer; border-radius: 8px; text-transform: uppercase; 
+            transition: 0.3s; font-size: 1rem; letter-spacing: 2px;
+        }
+        button:hover, button:active { background: var(--pk); color: white; box-shadow: 0 0 15px var(--pk); transform: scale(0.98); }
+        button:disabled { border-color: #333; color: #555; background: transparent; box-shadow: none; cursor: not-allowed; }
+
+        input {
+            width: 100%; padding: 15px; background: rgba(0,0,0,0.5); color: white; 
+            border: 1px solid #444; margin-bottom: 15px; border-radius: 8px; 
+            box-sizing: border-box; font-size: 1.2rem; text-align: center; text-transform: uppercase;
+        }
+        input:focus { outline: none; border-color: var(--pk); box-shadow: 0 0 10px rgba(255,46,99,0.5); }
+
+        #game-viewport { 
+            min-height: 350px; border: 1px solid #333; border-radius: 10px; padding: 20px; 
+            display: flex; flex-direction: column; align-items: center; justify-content: center; 
+            background: rgba(0,0,0,0.6); position: relative; margin-top: 15px;
         }
         
-        .status-bar { display: flex; justify-content: space-between; padding: 15px; background: #111; border-bottom: 2px solid #333; z-index: 3; position: relative; font-family: 'Courier New'; font-weight: bold; }
-        #game-screen { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 3; position: relative; }
-        .glass { background: rgba(10, 10, 10, 0.9); border: 1px solid var(--pk); box-shadow: 0 0 20px rgba(255, 46, 99, 0.3); border-radius: 15px; padding: 30px; width: 85%; text-align: center; }
-        .btn-neon { background: transparent; border: 2px solid var(--pk); color: var(--pk); padding: 15px; width: 100%; border-radius: 10px; font-weight: 900; margin-top: 15px; transition: 0.3s; font-size: 1.2rem; }
-        .btn-neon:active { background: var(--pk); color: white; transform: scale(0.95); }
+        /* ESTADOS */
+        .qualified { color: var(--gd); font-size: 3rem; text-shadow: 0 0 30px var(--gd); font-weight: 900; }
+        .eliminated { color: var(--rd); font-size: 3rem; text-shadow: 0 0 30px var(--rd); font-weight: 900; }
+        .death-flash { animation: flashRed 0.5s ease-out; }
+
+        @keyframes flashRed { 0% { background-color: var(--rd); } 100% { background-color: transparent; } }
+
+        /* BARRAS DE PROGRESO */
+        .progress-container { width: 100%; background: #111; height: 15px; border-radius: 8px; margin: 15px 0; border: 1px solid #333; overflow: hidden; }
+        .progress-bar { height: 100%; background: var(--gr); width: 0%; transition: width 0.2s ease, background-color 0.3s; box-shadow: 0 0 10px var(--gr); }
+
+        /* ADMIN */
+        #admin-panel { border-color: var(--rd); display: none; }
+        .admin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .admin-btn { border-color: #555; color: #ccc; }
+        .admin-btn:hover { background: #333; border-color: white; box-shadow: none; }
+        .luz { width: 80px; height: 80px; border-radius: 50%; margin-bottom: 15px; box-shadow: 0 0 20px rgba(0,0,0,0.5); transition: 0.3s; }
         
-        .death-screen { position: fixed; top:0; left:0; width:100%; height:100%; background: radial-gradient(circle, #8a0000 0%, #000000 100%); z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-        .glitch { animation: glitch 0.2s linear infinite; font-size: 4rem; color: white; text-shadow: 2px 0 red, -2px 0 blue; }
-        
-        /* ADMIN PANEL */
-        #admin-panel { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.95); z-index: 10000; display: none; padding: 20px; box-sizing: border-box; overflow-y: auto; }
-        .admin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
-        .btn-admin { background: #222; color: white; border: 1px solid #555; padding: 15px; font-weight: bold; }
-        .btn-danger { background: #4a0000; border-color: red; color: white; }
+        .header-info { display:flex; justify-content:space-between; font-family: 'Courier New'; font-weight: bold; border-bottom: 1px solid #333; padding-bottom: 10px; margin-bottom: 10px; }
     </style>
 </head>
 <body>
 
-<audio id="snd-siren" src="https://www.myinstants.com/media/sounds/the-purge-siren.mp3"></audio>
-<audio id="snd-shot" src="https://www.myinstants.com/media/sounds/m1-garand-ping.mp3"></audio>
+<header onclick="openAdmin()">
+    <div class="logo">🔺⚪🟦</div>
+</header>
 
-<div class="status-bar">
-    <span id="player-tag">#--- | CARGANDO...</span>
-    <span id="player-life" style="color:var(--gr)">VIVO</span>
-</div>
+<section id="auth" class="card animate__animated animate__fadeIn">
+    <h3 style="color:var(--pk); letter-spacing: 2px;">FIRMA TU CONTRATO</h3>
+    <p style="color:#aaa; font-size:0.9rem;">Ingresa tu nombre de Mago para entrar al torneo.</p>
+    <input type="text" id="nick" placeholder="TU NOMBRE" autocomplete="off">
+    <button onclick="join()">INGRESAR A LA ARENA</button>
+</section>
 
-<div id="game-screen">
-    <div id="content" class="glass">
-        <h2 id="title">HOGWARTS ORIÓN</h2>
-        <p id="desc" style="color: #aaa;">Esperando órdenes del Guardián...</p>
-        <div id="interactive-area"></div>
+<section id="arena" class="card" style="display:none;">
+    <div class="header-info">
+        <span id="p-info" style="color:var(--bl);">#--- | JUGADOR</span>
+        <span id="p-st" style="color:var(--gr);">VIVO</span>
     </div>
-</div>
 
-<div id="admin-panel">
-    <h2 style="color: var(--rd); border-bottom: 1px solid var(--rd); padding-bottom: 10px;">🛡️ MODO GUARDIÁN</h2>
-    <p>Control de Juegos:</p>
-    <div class="admin-grid">
-        <button class="btn-admin" onclick="setGame('Lobby')">SALA DE ESPERA</button>
-        <button class="btn-admin" onclick="setGame('Luz Roja')">1. LUZ ROJA</button>
+    <div id="game-viewport">
+        <h2 id="g-title" style="letter-spacing: 3px; color: #fff;">CONECTANDO...</h2>
+        <div id="g-main" style="width: 100%; text-align: center;"></div>
+        <div id="g-meta" style="width:100%"></div>
     </div>
+</section>
+
+<section id="admin-panel" class="card">
+    <h3 style="color:var(--rd); text-shadow: 0 0 10px var(--rd);">🛡️ PANEL DEL GUARDIÁN</h3>
     
-    <p style="margin-top:20px; color: var(--gd);">Control de Tablero & Sonido:</p>
-    <div class="admin-grid">
-        <button class="btn-admin btn-danger" onclick="triggerDuel()">⚔️ SORTEAR DUELO</button>
-        <button class="btn-admin btn-danger" onclick="playGlobalSound('siren')">🚨 SIRENA PURGA</button>
+    <div id="admin-luz-controls" style="display:none; background: rgba(255,0,0,0.1); padding: 15px; border-radius: 10px; margin-bottom: 15px;">
+        <h4 style="margin:0 0 10px 0;">Control de Muñeca</h4>
+        <div style="display:flex; gap:10px;">
+            <button onclick="setGlobalColor('VERDE')" style="background:var(--gr); color:black; border:none;">🟢 LUZ VERDE</button>
+            <button onclick="setGlobalColor('ROJO')" style="background:var(--rd); color:white; border:none;">🔴 LUZ ROJA</button>
+        </div>
     </div>
-    <button class="btn-neon" style="margin-top: 30px; border-color: gray; color: gray;" onclick="toggleAdmin()">CERRAR PANEL</button>
-</div>
+
+    <div class="admin-grid">
+        <button class="admin-btn" onclick="setG('SALA DE ESPERA')">ESPERA / RESET</button>
+        <button class="admin-btn" onclick="setG('Luz Roja Luz Verde')">1. LUZ ROJA</button>
+        <button class="admin-btn" onclick="setG('Puente de Cristal')">2. PUENTE</button>
+        <button class="admin-btn" onclick="setG('Dalgona')">3. DALGONA</button>
+        <button class="admin-btn" onclick="setG('Tira y Afloja')">4. CUERDA</button>
+        <button class="admin-btn" onclick="setG('Canicas')">5. CANICAS</button>
+        <button class="admin-btn" onclick="setG('Duelo de Hechizos')">6. DUELOS</button>
+        <button class="admin-btn" onclick="setG('Tipeo Mortal')">7. TIPEO</button>
+        <button class="admin-btn" onclick="setG('Beso del Dementor')">8. DEMENTOR</button>
+        <button class="admin-btn" onclick="setG('El Cáliz')">9. CÁLIZ</button>
+        <button class="admin-btn" style="border-color:var(--gd); color:var(--gd);" onclick="setG('Final Squid Game')">10. FINAL</button>
+    </div>
+</section>
 
 <script>
-const firebaseConfig = { databaseURL: "https://squid-games-24283-default-rtdb.firebaseio.com/" };
-firebase.initializeApp(firebaseConfig);
+const config = { databaseURL: "https://squid-games-24283-default-rtdb.firebaseio.com/" };
+if (!firebase.apps.length) { firebase.initializeApp(config); }
 const db = firebase.database();
 
-let player = { id: localStorage.getItem('p_id'), name: '', num: 0, status: 'ALIVE' };
+let myId = localStorage.getItem('o_id'), isDead = false, qualified = false, progress = 0, adminClks = 0;
+let globalColor = "ROJO"; // Para luz roja
 
-// Registro Inicial
-if(!player.id) {
-    player.name = prompt("Tu Nombre de Mago:") || "Anónimo";
-    player.id = "u_" + Date.now();
-    player.num = Math.floor(Math.random() * 456) + 1;
-    localStorage.setItem('p_id', player.id);
-    db.ref('players/' + player.id).set({ name: player.name, num: player.num, status: 'ALIVE' });
-} else {
-    // Recuperar datos si recarga la página
-    db.ref('players/' + player.id).once('value', snap => {
-        if(snap.exists()) { player.name = snap.val().name; player.num = snap.val().num; document.getElementById('player-tag').innerText = `#${player.num} | ${player.name}`; }
+function openAdmin() { adminClks++; if(adminClks >= 5) document.getElementById('admin-panel').style.display = 'block'; }
+
+function setG(n) { 
+    db.ref('state').update({ game: n, ts: Date.now() }); 
+    // Mostrar controles extra para Luz Roja en admin
+    document.getElementById('admin-luz-controls').style.display = (n === 'Luz Roja Luz Verde') ? 'block' : 'none';
+}
+function setGlobalColor(color) { db.ref('state').update({ color: color }); }
+
+function join() {
+    const n = document.getElementById('nick').value.toUpperCase(); if(!n) return;
+    myId = "u_" + Date.now(); localStorage.setItem('o_id', myId);
+    db.ref('players/'+myId).set({ name: n, st: "ALIVE", num: Math.floor(Math.random()*456+1), act: "" });
+    document.getElementById('auth').style.display='none';
+    start();
+}
+
+function start() {
+    if(document.getElementById('auth').style.display !== 'none') document.getElementById('auth').style.display='none';
+    document.getElementById('arena').style.display='block';
+    
+    // Escuchar Estado Global (El Juego actual)
+    db.ref('state').on('value', snap => {
+        const s = snap.val() || {game: 'SALA DE ESPERA', color: 'ROJO'};
+        globalColor = s.color || "ROJO";
+        qualified = false; progress = 0; 
+        
+        // Actualizar UI de Luz Roja si estamos en ese juego
+        const luzElement = document.getElementById('l');
+        const progressBar = document.getElementById('pb');
+        if(luzElement) {
+            luzElement.style.background = (globalColor === 'VERDE') ? 'var(--gr)' : 'var(--rd)';
+            luzElement.style.boxShadow = `0 0 30px ${(globalColor === 'VERDE') ? 'var(--gr)' : 'var(--rd)'}`;
+            if(progressBar) progressBar.style.background = (globalColor === 'VERDE') ? 'var(--gr)' : 'var(--rd)';
+        }
+        
+        render(s.game);
+    });
+
+    // Escuchar Mi Estado (Vivo/Muerto)
+    db.ref('players/'+myId).on('value', snap => {
+        const p = snap.val();
+        if(!p) return;
+        document.getElementById('p-info').innerText = `#${p.num} | ${p.name}`;
+        
+        if(p.st === "DEAD" && !isDead) { 
+            isDead = true; 
+            document.body.classList.add('death-flash');
+            renderEliminated(); 
+        } else if (p.st === "ALIVE") {
+            isDead = false;
+            document.getElementById('p-st').innerText = "VIVO"; 
+            document.getElementById('p-st').style.color = "var(--gr)";
+        }
     });
 }
 
-// Escuchas en Tiempo Real
-db.ref('state/game').on('value', snap => { document.getElementById('title').innerText = snap.val() || "HOGWARTS ORIÓN"; });
-db.ref('players/' + player.id + '/status').on('value', snap => {
-    if(snap.val() === 'DEAD') {
-        document.body.innerHTML = `<div class="death-screen"><h1 class="glitch">ELIMINADO</h1><p>Has caído en combate.</p></div>`;
-        document.getElementById('snd-shot').play().catch(e=>console.log("Auto-play blocked"));
-    }
-});
-db.ref('state/globalSound').on('value', snap => {
-    if(snap.val() === 'siren') { let s = document.getElementById('snd-siren'); s.currentTime = 0; s.play(); }
-});
+function render(game) {
+    if(isDead) { renderEliminated(); return; }
+    if(qualified) { win(); return; } // Mantiene pantalla de victoria si ya calificó en esta ronda
 
-// Admin Funciones
-let clks = 0; document.getElementById('title').onclick = () => { clks++; if(clks>=7) toggleAdmin(); };
-function toggleAdmin() { document.getElementById('admin-panel').style.display = document.getElementById('admin-panel').style.display === 'block' ? 'none' : 'block'; clks=0; }
-function setGame(g) { db.ref('state').update({ game: g }); }
-function playGlobalSound(snd) { db.ref('state').update({ globalSound: snd, ts: Date.now() }); }
-function triggerDuel() { db.ref('state/duel').set({ active: true, ts: Date.now() }); setTimeout(() => { db.ref('state/duel/active').set(false); }, 6000); }
+    const main = document.getElementById('g-main'), meta = document.getElementById('g-meta');
+    document.getElementById('g-title').innerText = game;
+    main.innerHTML = ""; meta.innerHTML = ""; 
+
+    switch(game) {
+        case "Luz Roja Luz Verde":
+            main.innerHTML = `<div id="l" class="luz" style="background:${globalColor==='VERDE'?'var(--gr)':'var(--rd)'}; margin: 0 auto 20px auto;"></div>`;
+            meta.innerHTML = `
+                <div class="progress-container"><div id="pb" class="progress-bar"></div></div>
+                <button onpointerdown="moveLR()">AVANZAR (PASOS: <span id="pc">0</span>/100)</button>`;
+            break;
+
+        case "Puente de Cristal":
+            main.innerHTML = '<p style="color:#aaa; font-size:1.1rem; margin-bottom:20px;">Cruza 10 baldosas sin caer. Solo los más valientes sobreviven.</p>';
+            meta.innerHTML = `
+                <div id="pb-c" style="font-size:1.5rem; font-weight:bold; margin-bottom:15px; color:var(--gd);">Baldosa: 0/10</div>
+                <div class="admin-grid">
+                    <button onpointerdown="stepB()" style="border-color:var(--bl); color:var(--bl);">IZQ</button>
+                    <button onpointerdown="stepB()" style="border-color:var(--bl); color:var(--bl);">DER</button>
+                </div>`;
+            break;
+
+        case "Dalgona":
+            main.innerHTML = '<p style="color:#aaa; font-size:1.1rem; margin-bottom:20px;">Extrae la figura.<br><b style="color:white">Mantén presionado EXACTAMENTE 3 segundos.</b></p>';
+            meta.innerHTML = '<button id="btn-dalgona" onpointerdown="sD()" onpointerup="eD()" onpointerleave="eD()">👉 MANTENER PRESIONADO 👈</button>';
+            break;
+
+        case "Duelo de Hechizos":
+            main.innerHTML = '<p style="color:#aaa; margin-bottom:20px;">Prepárate para el PvP. Elige tu magia.</p>';
+            meta.innerHTML = `
+                <button onpointerdown="act('Atq')" style="border-color:var(--rd); color:var(--rd);">🔥 ATAQUE (Expelliarmus)</button>
+                <button onpointerdown="act('Def')" style="border-color:var(--bl); color:var(--bl);">🛡️ DEFENSA (Protego)</button>
+                <button onpointerdown="act('Sig')" style="border-color:var(--gr); color:var(--gr);">🐍 SIGILO (Desmaius)</button>`;
+            break;
+
+        case "Tipeo Mortal":
+            main.innerHTML = '<p style="color:#aaa;">Escribe el hechizo protector a la perfección.</p>';
+            meta.innerHTML = `
+                <input type="text" id="spell-input" placeholder="Hechizo aquí...">
+                <button onpointerdown="checkSpell()">LANZAR HECHIZO</button>`;
+            break;
+
+        case "SALA DE ESPERA":
+            main.innerHTML = '<div class="animate__animated animate__pulse animate__infinite" style="font-size:3rem;">⏳</div>';
+            meta.innerHTML = '<p style="color:#aaa;">Descansa y haz alianzas. El Guardián abrirá la arena pronto.</p>';
+            break;
+
+        default: 
+            main.innerHTML = "<p style='color:var(--gd);'>Prueba en preparación...</p>";
+            meta.innerHTML = "<p>Espera instrucciones del Guardián.</p>";
+    }
+}
+
+// --- LOGICA LUZ ROJA (SINCRONIZADA) ---
+// Ahora depende de la base de datos (globalColor) que cambia el admin
+function moveLR() {
+    if(globalColor === "ROJO") {
+        die();
+    } else {
+        progress++; 
+        document.getElementById('pc').innerText = progress;
+        document.getElementById('pb').style.width = progress + "%";
+        if(progress >= 100) win();
+    }
+}
+
+// --- LOGICA PUENTE ---
+function stepB() {
+    // Reduje la letalidad de 40% a 20% para que al menos alguien gane en grupos pequeños.
+    if(Math.random() < 0.20) die();
+    else {
+        progress++; 
+        document.getElementById('pb-c').innerText = `Baldosa: ${progress}/10`;
+        if(progress >= 10) win();
+    }
+}
+
+// --- LOGICA DALGONA ---
+let startT;
+function sD() { 
+    startT = Date.now(); 
+    document.getElementById('btn-dalgona').style.background = 'var(--pk)';
+    document.getElementById('btn-dalgona').style.color = 'white';
+}
+function eD() {
+    if(!startT) return; // Evita que se dispare si no se hizo click
+    let diff = Date.now() - startT;
+    startT = null;
+    
+    // Entre 2.8s y 3.2s
+    if(diff > 2800 && diff < 3200) win(); 
+    else die();
+}
+
+// --- LOGICA DUELO Y EXTRA ---
+function act(a) { 
+    db.ref('players/'+myId).update({act: a}); 
+    document.getElementById('g-main').innerHTML = `<h3 style="color:var(--bl)">Acción fijada: ${a}</h3><p>Esperando resolución del Guardián...</p>`;
+    document.getElementById('g-meta').innerHTML = "";
+}
+
+function checkSpell() {
+    const spell = document.getElementById('spell-input').value.trim().toLowerCase();
+    if(spell === "expecto patronum") win(); else die();
+}
+
+function die() { 
+    db.ref('players/'+myId).update({st: "DEAD"}); 
+}
+
+function win() { 
+    qualified = true;
+    document.getElementById('game-viewport').innerHTML = `
+        <h1 class="qualified animate__animated animate__tada">CALIFICADO</h1>
+        <p style="color:#aaa;">Has sobrevivido a esta prueba. Descansa tu varita.</p>`;
+}
+
+function renderEliminated() {
+    document.getElementById('game-viewport').innerHTML = `
+        <h1 class="eliminated animate__animated animate__zoomIn">ELIMINADO</h1>
+        <p style="color:#aaa;">Tu participación en el torneo ha concluido.</p>`;
+    document.getElementById('p-st').innerText = "MUERTO"; 
+    document.getElementById('p-st').style.color = "var(--rd)";
+}
+
+window.onload = () => { if(myId) start(); };
 </script>
 </body>
 </html>
