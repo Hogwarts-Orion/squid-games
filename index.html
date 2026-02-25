@@ -52,9 +52,21 @@
         /* ESCONDER VISTAS */
         .view { display: none; }
         .active-view { display: block; }
+
+        /* NUEVO: SISTEMA DE NOTIFICACIONES TOAST */
+        #toast-container { position: fixed; top: 15px; left: 50%; transform: translateX(-50%); z-index: 10000; display: flex; flex-direction: column; gap: 10px; pointer-events: none; width: 90%; max-width: 400px; }
+        .toast { background: rgba(15, 15, 15, 0.95); border: 1px solid #333; color: white; padding: 15px; border-radius: 8px; font-weight: bold; text-align: center; box-shadow: 0 5px 20px rgba(0,0,0,0.8); animation: slideDown 0.3s ease-out forwards; }
+        .toast.success { border-color: var(--gr); color: var(--gr); box-shadow: 0 5px 15px rgba(0,255,65,0.2); }
+        .toast.error { border-color: var(--rd); color: var(--rd); box-shadow: 0 5px 15px rgba(255,0,60,0.2); }
+        .toast.info { border-color: var(--bl); color: var(--bl); box-shadow: 0 5px 15px rgba(8,217,214,0.2); }
+        @keyframes slideDown { from { top: -50px; opacity: 0; } to { top: 0; opacity: 1; } }
+        .toast-fade { animation: fadeOut 0.4s forwards; }
+        @keyframes fadeOut { to { opacity: 0; transform: translateY(-20px); } }
     </style>
 </head>
 <body>
+
+    <div id="toast-container"></div>
 
     <audio id="snd-shot" src="https://www.myinstants.com/media/sounds/m1-garand-ping.mp3" preload="auto"></audio>
     <audio id="snd-win" src="https://www.myinstants.com/media/sounds/level-up-sound-effect.mp3" preload="auto"></audio>
@@ -138,6 +150,20 @@
         let P = { id: localStorage.getItem('osg_id'), role: localStorage.getItem('osg_role'), status: 'ALIVE', prog: 0, qual: false };
         let G = { name: "ESPERA", light: "ROJO" };
 
+        // --- SISTEMA DE NOTIFICACIONES VISUALES ---
+        function showNotification(msg, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerText = msg;
+            container.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.classList.add('toast-fade');
+                setTimeout(() => toast.remove(), 400);
+            }, 3000);
+        }
+
         function switchView(viewId) {
             document.querySelectorAll('.view').forEach(v => v.classList.remove('active-view'));
             document.getElementById(viewId).classList.add('active-view');
@@ -156,8 +182,16 @@
             const name = document.getElementById('username').value.trim().toUpperCase() || "ANÓNIMO";
             
             if(role === 'ADMIN') {
-                if(document.getElementById('admin-pass').value !== "1234") return alert("Código incorrecto");
-                P.role = "ADMIN"; switchView('view-admin'); initAdmin(); return;
+                if(document.getElementById('admin-pass').value !== "1234") {
+                    return showNotification("❌ Código de Guardián incorrecto", "error");
+                }
+                P.role = "ADMIN"; switchView('view-admin'); initAdmin(); 
+                showNotification("🛡️ Acceso de Guardián concedido", "success");
+                return;
+            }
+
+            if(role === 'PLAYER' && name === "ANÓNIMO") {
+                return showNotification("⚠️ Debes escribir tu nombre para entrar a la arena", "error");
             }
 
             unlockAudio();
@@ -201,19 +235,25 @@
                 document.getElementById('a-alive').innerText = a; document.getElementById('a-dead').innerText = d;
             });
         }
-        function setGame(g) { db.ref('state').update({ game: g, light: "ROJO" }); }
+        function setGame(g) { 
+            db.ref('state').update({ game: g, light: "ROJO" }); 
+            showNotification(`🎮 Juego cambiado a: ${g}`, "info");
+        }
         function setGlobal(key, val) { db.ref('state/' + key).set(val); }
-        function fireSound(snd) { db.ref('state/snd').set({ id: snd, t: Date.now() }); }
+        function fireSound(snd) { 
+            db.ref('state/snd').set({ id: snd, t: Date.now() }); 
+            showNotification(`🔊 Efecto de sonido activado`, "info");
+        }
         
         function killUnqualified() {
             db.ref('players').once('value', snap => {
                 snap.forEach(child => { if(child.val().st === 'ALIVE' && !child.val().q) db.ref('players/'+child.key+'/st').set('DEAD'); });
             });
-            alert("Lentos eliminados.");
+            showNotification("☠️ Jugadores lentos eliminados.", "error");
         }
         function reviveAll() {
             db.ref('players').once('value', snap => { snap.forEach(c => { db.ref('players/'+c.key+'/st').set('ALIVE'); }); });
-            alert("Todos han sido revividos.");
+            showNotification("✨ Todos han sido revividos.", "success");
         }
 
         // --- LÓGICA VIP / STATS ---
@@ -307,19 +347,4 @@
         }
 
         // Lógicas de Juegos
-        function actLuz() { if(G.light === 'ROJO') die(); else { P.prog += 5; renderUI(); if(P.prog >= 100) win(); } }
-        
-        let tDal;
-        function sDal() { tDal = Date.now(); document.getElementById('btn-dalgona').innerText = "EXTRAYENDO..."; }
-        function eDal() { if(!tDal) return; let d = (Date.now() - tDal)/1000; tDal = null; if(d>=3.8 && d<=4.2) win(); else die(); }
-
-        function actPte() { if(Math.random() < 0.5) die(); else { P.prog++; if(P.prog>=5) win(); else renderUI(); } }
-        
-        function actRul() { if(Math.random() < 0.16) die(); else { P.prog++; if(P.prog>=5) win(); else renderUI(); } }
-        
-        function actTip() { if(document.getElementById('i-spell').value.trim().toUpperCase() === "EXPECTO PATRONUM") win(); else die(); }
-
-        window.onload = () => { if(P.id || P.role === 'ADMIN') routeUser(); };
-    </script>
-</body>
-</html>
+        function actLuz() { 
