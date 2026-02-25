@@ -3,26 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ORION SQUID GAMES | MASTER</title>
+    <title>ORION SQUID GAMES | DEFINITIVE</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <style>
         :root { --pk: #ff2e63; --gr: #00ff41; --gd: #ffd700; --bk: #050505; --rd: #ff003c; --bl: #08d9d6; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { background: var(--bk); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 10px; min-height: 100vh; overflow-x: hidden; touch-action: manipulation; }
-        .card { background: rgba(20,20,20,0.95); border: 1px solid #333; border-radius: 12px; padding: 15px; margin: auto; width: 100%; max-width: 500px; box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
-        .logo { font-size: 1.8rem; letter-spacing: 8px; text-shadow: 0 0 10px var(--pk); font-weight: 900; text-align: center; margin-bottom: 15px; }
-        .btn-reset { position: fixed; right: 10px; top: 10px; font-size: 1.2rem; cursor: pointer; background: rgba(255,255,255,0.1); border-radius: 50%; width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; border: 1px solid #444; z-index: 1000; }
-        button { width: 100%; padding: 14px; margin: 4px 0; background: transparent; border: 2px solid var(--pk); color: var(--pk); font-weight: bold; border-radius: 8px; text-transform: uppercase; cursor: pointer; }
+        body { background: var(--bk); color: white; font-family: sans-serif; margin: 0; padding: 10px; min-height: 100vh; overflow-x: hidden; touch-action: manipulation; }
+        .card { background: #111; border: 1px solid #333; border-radius: 12px; padding: 20px; width: 100%; max-width: 450px; margin: auto; box-shadow: 0 10px 30px #000; text-align: center; }
+        .logo { font-size: 2rem; letter-spacing: 8px; text-shadow: 0 0 10px var(--pk); font-weight: 900; margin-bottom: 20px; }
+        .btn-reset { position: fixed; right: 10px; top: 10px; background: #222; border: 1px solid #444; border-radius: 50%; width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; z-index: 1000; cursor: pointer; }
+        input, select { width: 100%; padding: 14px; margin-bottom: 10px; background: #000; color: white; border: 1px solid #444; border-radius: 8px; text-align: center; }
+        button { width: 100%; padding: 15px; margin: 5px 0; background: transparent; border: 2px solid var(--pk); color: var(--pk); font-weight: bold; border-radius: 8px; text-transform: uppercase; cursor: pointer; }
         button:active { background: var(--pk); color: white; }
-        .stats-row { display: flex; justify-content: space-between; background: #111; padding: 10px; border-radius: 8px; margin-bottom: 10px; border: 1px solid #333; font-family: monospace; }
-        .bridge-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 15px; }
-        .tile { height: 60px; background: rgba(255,255,255,0.05); border: 2px solid #444; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: bold; }
-        .tile.safe { border-color: var(--gr); background: rgba(0,255,0,0.15); color: var(--gr); }
-        .tile.broken { border-color: var(--rd); background: rgba(255,0,0,0.15); color: var(--rd); }
-        .tile.admin-hint { border-style: dashed; border-color: var(--gd); color: var(--gd); }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; }
+        .grid-3 button { padding: 10px 2px; font-size: 0.7rem; border-width: 1px; }
+        .stats-row { display: flex; justify-content: space-between; background: #000; padding: 10px; border-radius: 8px; margin-bottom: 10px; border: 1px solid #333; font-family: monospace; font-size: 0.9rem; }
+        .luz { width: 70px; height: 70px; border-radius: 50%; margin: 15px auto; border: 4px solid #111; }
+        .luz-verde { background: var(--gr); box-shadow: 0 0 30px var(--gr); }
+        .luz-roja { background: var(--rd); box-shadow: 0 0 30px var(--rd); }
         .view { display: none; }
         .active-view { display: block !important; }
+        .dalgona-bar { width: 100%; height: 30px; background: #222; border-radius: 15px; position: relative; margin: 20px 0; border: 1px solid #444; }
+        .dalgona-target { position: absolute; height: 100%; width: 20%; background: var(--gd); left: 40%; }
+        .dalgona-p { position: absolute; height: 100%; width: 4px; background: #fff; left: 0; }
+        .tile { height: 50px; border: 2px solid #333; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.8rem; }
+        .tile.ok { border-color: var(--gr); background: rgba(0,255,0,0.2); }
+        .tile.bad { border-color: var(--rd); background: rgba(255,0,0,0.2); }
     </style>
 </head>
 <body>
@@ -30,154 +37,118 @@
     <div class="btn-reset" onclick="localStorage.clear(); location.reload();">🔄</div>
     <div class="logo">🔺⚪🟦</div>
 
-    <section id="view-login" class="card view active-view">
-        <input type="text" id="username" placeholder="NOMBRE" style="width:100%; padding:14px; margin-bottom:12px; background:#000; color:white; border:1px solid #444; border-radius:8px;">
-        <select id="user-house" style="width:100%; padding:14px; margin-bottom:12px; background:#000; color:white; border:1px solid #444; border-radius:8px;">
-            <option value="Gryffindor">GRYFFINDOR</option>
-            <option value="Slytherin">SLYTHERIN</option>
-            <option value="Ravenclaw">RAVENCLAW</option>
-            <option value="Hufflepuff">HUFFLEPUFF</option>
-        </select>
-        <button onclick="access('PLAYER')" style="background:var(--pk); color:white;">ENTRAR</button>
-        <div style="margin-top:20px; border-top:1px solid #333; padding-top:15px;">
-            <input type="password" id="admin-pass" placeholder="PASSWORD ADMIN" style="width:100%; padding:12px; margin-bottom:10px; background:#000; color:white; border:1px solid #444; border-radius:8px;">
-            <button onclick="access('ADMIN')" style="border-color:var(--rd); color:var(--rd);">MODO GUARDIÁN</button>
-        </div>
+    <section id="v-login" class="card view active-view">
+        <input type="text" id="user" placeholder="NOMBRE">
+        <select id="house"><option>Gryffindor</option><option>Slytherin</option><option>Ravenclaw</option><option>Hufflepuff</option></select>
+        <button onclick="login('PLAYER')" style="background:var(--pk); color:#fff">JUGAR</button>
+        <button onclick="login('VIP')" style="border-color:var(--gd); color:var(--gd)">VER (VIP)</button>
+        <hr style="border:0; border-top:1px solid #333; margin:20px 0;">
+        <input type="password" id="pass" placeholder="PASSWORD">
+        <button onclick="login('ADMIN')" style="border-color:var(--rd); color:var(--rd)">ADMIN</button>
     </section>
 
-    <section id="view-player" class="card view">
-        <div class="stats-row"><span id="p-tag">#000</span><span id="p-house">...</span><span id="p-status">VIVO</span></div>
-        <h2 id="p-game-title" style="color:var(--pk); text-align:center;">JUEGO</h2>
+    <section id="v-player" class="card view">
+        <div class="stats-row"><span id="p-n">#000</span><span id="p-h">...</span><span id="p-s" style="color:var(--gr)">VIVO</span></div>
+        <h2 id="p-title" style="color:var(--pk)">ESPERA</h2>
         <div id="p-canvas"></div>
     </section>
 
-    <section id="view-admin" class="card view">
-        <h3 style="color:var(--rd); text-align:center;">🛡️ MANDO GLOBAL</h3>
-        <div class="stats-row"><span>V: <b id="a-alive">0</b></span><span>M: <b id="a-dead">0</b></span></div>
-        <div id="admin-bridge-preview" style="display:none; font-size:0.7rem; color:var(--gd); margin-bottom:10px;"></div>
-        <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:5px;">
-            <button onclick="adminGame('ESPERA')">RESET</button>
-            <button onclick="adminGame('LUZ ROJA')">L.ROJA</button>
-            <button onclick="adminGame('PUENTE')">PUENTE</button>
-            <button onclick="adminGame('DALGONA')">DALGONA</button>
-            <button onclick="adminGame('TIPEO')">TIPEO</button>
-            <button onclick="adminGame('RULETA')">RULETA</button>
+    <section id="v-admin" class="card view" style="border-color:var(--rd)">
+        <div class="stats-row"><span>V: <b id="a-v">0</b></span><span>J: <b id="a-j">...</b></span><span>M: <b id="a-m">0</b></span></div>
+        <div id="a-light-box" style="display:none; margin-bottom:10px;" class="grid-3">
+            <button onclick="dbSet('s/l', 'VERDE')" style="color:var(--gr)">VERDE</button>
+            <button onclick="dbSet('s/l', 'ROJO')" style="color:var(--rd)">ROJA</button>
+            <span id="a-hint" style="font-size:0.6rem; color:var(--gd)"></span>
         </div>
-        <button onclick="reviveAll()" style="margin-top:10px; border-color:var(--gr); color:var(--gr);">REVIVIR TODOS</button>
+        <div class="grid-3">
+            <button onclick="setG('ESPERA')">RESET</button><button onclick="setG('LUZ ROJA')">L.ROJA</button><button onclick="setG('DALGONA')">DALGONA</button>
+            <button onclick="setG('PUENTE')">PUENTE</button><button onclick="setG('TIPEO')">TIPEO</button><button onclick="setG('CANICAS')">CANICAS</button>
+            <button onclick="setG('RULETA')">RULETA</button><button onclick="setG('REFLEJOS')">REFLEJOS</button><button onclick="setG('FINAL')">FINAL</button>
+        </div>
+        <button onclick="revive()" style="border-color:var(--gr); color:var(--gr); margin-top:10px">REVIVIR TODOS</button>
     </section>
 
     <script>
-        const fbCfg = { databaseURL: "https://squid-games-24283-default-rtdb.firebaseio.com/" };
-        firebase.initializeApp(fbCfg);
-        const db = firebase.database();
-
+        const config = { databaseURL: "https://squid-games-24283-default-rtdb.firebaseio.com/" };
+        firebase.initializeApp(config); const db = firebase.database();
         let U = { id: localStorage.getItem('os_id'), role: localStorage.getItem('os_role'), st: 'ALIVE', prog: 0, q: false };
-        let currentBridgeMap = []; // El camino secreto
-        let bridgeVisuals = [];   // Lo que ven todos
+        let bVis = []; let bMap = []; let dPos = 0, dDir = 1;
 
-        function access(role) {
+        function login(role) {
             if(role === 'ADMIN') {
-                if(document.getElementById('admin-pass').value !== "SquidGamesOrion15") return alert("Error");
+                if(document.getElementById('pass').value !== "SquidGamesOrion15") return alert("Error");
                 U.role = 'ADMIN'; localStorage.setItem('os_role', 'ADMIN');
             } else {
                 U.id = "u" + Date.now(); U.role = role;
                 localStorage.setItem('os_id', U.id); localStorage.setItem('os_role', role);
-                db.ref('players/'+U.id).set({ n: document.getElementById('username').value, h: document.getElementById('user-house').value, st: "ALIVE", q: false, num: Math.floor(Math.random()*456+1) });
+                if(role==='PLAYER') db.ref('p/'+U.id).set({ n: document.getElementById('user').value, h: document.getElementById('house').value, st: 'ALIVE', q: false, num: Math.floor(Math.random()*456+1) });
             }
             route();
         }
 
         function route() {
             document.querySelectorAll('.view').forEach(v => v.classList.remove('active-view'));
-            if(U.role === 'ADMIN') { document.getElementById('view-admin').classList.add('active-view'); initAdmin(); }
-            else { document.getElementById('view-player').classList.add('active-view'); initPlayer(); }
+            if(U.role === 'ADMIN') { document.getElementById('v-admin').classList.add('active-view'); initAdmin(); }
+            else if(U.role==='VIP' || U.st==='DEAD') { document.getElementById('v-player').classList.add('active-view'); initPlayer(); }
+            else { document.getElementById('v-player').classList.add('active-view'); initPlayer(); }
         }
 
         function initAdmin() {
-            db.ref('state/game').on('value', s => { 
-                let g = s.val() || 'ESPERA'; 
-                document.getElementById('a-game-display')?.remove();
-                if(g === 'PUENTE') document.getElementById('admin-bridge-preview').style.display = 'block';
+            db.ref('s/g').on('value', s => { 
+                let g = s.val(); document.getElementById('a-j').innerText = g;
+                document.getElementById('a-light-box').style.display = (g === 'LUZ ROJA' || g === 'PUENTE') ? 'grid' : 'none';
             });
-            db.ref('bridge_map').on('value', s => {
-                currentBridgeMap = s.val() || [];
-                document.getElementById('admin-bridge-preview').innerText = "RUTA SECRETA: " + currentBridgeMap.map(m => m === 0 ? "IZQ" : "DER").join(" > ");
-            });
-            db.ref('players').on('value', s => {
-                let a=0, d=0; s.forEach(c => { if(c.val().st === 'ALIVE') a++; else d++; });
-                document.getElementById('a-alive').innerText = a; document.getElementById('a-dead').innerText = d;
-            });
+            db.ref('p').on('value', s => { let a=0, d=0; s.forEach(c => { if(c.val().st === 'ALIVE') a++; else d++; }); document.getElementById('a-v').innerText = a; document.getElementById('a-m').innerText = d; });
+            db.ref('b_m').on('value', s => { bMap = s.val() || []; document.getElementById('a-hint').innerText = "PUENTE: " + bMap.map(m=>m===0?'I':'D').join(""); });
         }
 
         function initPlayer() {
-            db.ref('state/game').on('value', g => {
-                if(window.lg !== g.val()) { U.prog = 0; U.q = false; window.lg = g.val(); }
-                render(g.val());
+            db.ref('s').on('value', snap => { 
+                const s = snap.val() || {g:'ESPERA', l:'ROJO'}; 
+                if(window.lg !== s.g) { U.prog = 0; U.q = false; window.lg = s.g; clearInterval(window.dInt); }
+                render(s.g, s.l); 
             });
-            db.ref('bridge_map').on('value', s => currentBridgeMap = s.val() || []);
-            db.ref('bridge_visuals').on('value', s => { bridgeVisuals = s.val() || []; if(window.lg === 'PUENTE') render('PUENTE'); });
-            db.ref('players/'+U.id).on('value', s => {
-                if(!s.val()) return;
-                U.st = s.val().st;
-                document.getElementById('p-tag').innerText = "#" + s.val().num;
-                document.getElementById('p-house').innerText = s.val().h;
-                if(U.st === 'DEAD') { document.getElementById('p-status').innerText = "MUERTO"; document.getElementById('p-status').style.color = "var(--rd)"; }
-            });
+            db.ref('b_v').on('value', s => { bVis = s.val() || []; if(window.lg === 'PUENTE') render('PUENTE'); });
+            db.ref('p/'+U.id).on('value', s => { if(!s.val()) return; U.st = s.val().st; if(U.st==='DEAD'){ document.getElementById('p-s').innerText="MUERTO"; document.getElementById('p-s').style.color="red"; } document.getElementById('p-n').innerText="#"+s.val().num; document.getElementById('p-h').innerText=s.val().h; });
         }
 
-        function render(g) {
-            const v = document.getElementById('p-canvas');
-            document.getElementById('p-game-title').innerText = g;
-            if(U.st === 'DEAD') { v.innerHTML = "<h2 style='color:var(--rd)'>ELIMINADO</h2>"; return; }
+        function render(g, l) {
+            const v = document.getElementById('p-canvas'); document.getElementById('p-title').innerText = g;
+            if(U.st==='DEAD') { v.innerHTML = "<h2 style='color:red'>ELIMINADO</h2>"; return; }
             if(U.q) { v.innerHTML = "<h2 style='color:var(--gd)'>CALIFICADO</h2>"; return; }
 
-            if(g === 'PUENTE') {
-                v.innerHTML = `<p>PASO: ${U.prog}/12</p><div class="bridge-grid" id="bridge"></div>`;
-                const b = document.getElementById('bridge');
+            if(g === 'LUZ ROJA') {
+                v.innerHTML = `<div class="luz ${l==='VERDE'?'luz-verde':'luz-roja'}"></div><button onclick="actL('${l}')">AVANZAR (${U.prog}%)</button>`;
+            } else if(g === 'PUENTE') {
+                v.innerHTML = `<p>PASO: ${U.prog}/10</p><div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;" id="br"></div>`;
                 for(let i=0; i<2; i++) {
-                    const tile = document.createElement('div');
-                    tile.className = 'tile';
-                    let history = bridgeVisuals.find(h => h.step === U.prog && h.side === i);
-                    if(history) {
-                        tile.className += history.broken ? ' broken' : ' safe';
-                        tile.innerText = history.broken ? 'ROT' : 'OK';
-                    } else {
-                        tile.innerText = i === 0 ? 'IZQUIERDA' : 'DERECHA';
-                        tile.onclick = () => stepP(i);
-                    }
-                    b.appendChild(tile);
+                    let d = document.createElement('div'); d.className = 'tile';
+                    let h = bVis.find(x => x.s === U.prog && x.side === i);
+                    if(h) { d.className += h.ok ? ' ok' : ' bad'; d.innerText = h.ok ? 'OK' : 'X'; }
+                    else { d.innerText = i===0?'IZQ':'DER'; d.onclick = () => actP(i); }
+                    document.getElementById('br').appendChild(d);
                 }
-            } else { v.innerHTML = "<h3>ESPERA AL GUARDIÁN...</h3>"; }
+            } else if(g === 'DALGONA') {
+                v.innerHTML = `<div class="dalgona-bar"><div class="dalgona-target"></div><div id="dp" class="dalgona-p"></div></div><button onclick="actD()">¡CORTAR!</button>`;
+                clearInterval(window.dInt); window.dInt = setInterval(() => { dPos += (4 * dDir); if(dPos >= 100 || dPos <= 0) dDir *= -1; if(document.getElementById('dp')) document.getElementById('dp').style.left = dPos + "%"; }, 30);
+            } else if(g === 'TIPEO') {
+                v.innerHTML = `<input id="ti" placeholder="EXPECTO PATRONUM"><button onclick="actT()">LANZAR</button>`;
+            } else { v.innerHTML = "<h4>ESPERANDO AL GUARDIÁN...</h4>"; }
         }
 
-        function stepP(side) {
-            let correctSide = currentBridgeMap[U.prog];
-            let isBroken = (side !== correctSide);
-            
-            // Actualizar visuales para todos
-            bridgeVisuals.push({ step: U.prog, side: side, broken: isBroken });
-            db.ref('bridge_visuals').set(bridgeVisuals);
-
-            if(isBroken) {
-                db.ref('players/'+U.id).update({st:'DEAD'});
-            } else {
-                U.prog++;
-                if(U.prog >= 12) { U.q = true; db.ref('players/'+U.id).update({q:true}); }
-                render('PUENTE');
-            }
+        function actL(l) { if(l==='ROJO') die(); else { U.prog += 5; if(U.prog>=100) win(); else render('LUZ ROJA', l); } }
+        function actD() { clearInterval(window.dInt); if(dPos >= 40 && dPos <= 60) win(); else die(); }
+        function actP(i) {
+            let ok = (i === bMap[U.prog]);
+            bVis.push({ s: U.prog, side: i, ok: ok }); db.ref('b_v').set(bVis);
+            if(!ok) die(); else { U.prog++; if(U.prog>=10) win(); else render('PUENTE'); }
         }
-
-        function adminGame(g) {
-            db.ref('state').update({ game: g });
-            if(g === 'PUENTE') {
-                // Generar camino secreto nuevo (12 pasos)
-                let newMap = Array.from({length: 12}, () => Math.floor(Math.random() * 2));
-                db.ref('bridge_map').set(newMap);
-                db.ref('bridge_visuals').set([]);
-            }
-        }
-
-        function reviveAll() { db.ref('players').once('value', s => s.forEach(c => db.ref('players/'+c.key+'/st').set('ALIVE'))); }
+        function actT() { if(document.getElementById('ti').value.toUpperCase()==="EXPECTO PATRONUM") win(); else die(); }
+        function die() { db.ref('p/'+U.id).update({st:'DEAD'}); }
+        function win() { U.q = true; db.ref('p/'+U.id).update({q:true}); }
+        function setG(g) { db.ref('s').update({ g: g, l: 'ROJO' }); if(g==='PUENTE') { db.ref('b_m').set(Array.from({length: 10}, () => Math.floor(Math.random() * 2))); db.ref('b_v').set([]); } }
+        function dbSet(p, v) { db.ref(p).set(v); }
+        function revive() { db.ref('p').once('value', s => s.forEach(c => db.ref('p/'+c.key+'/st').set('ALIVE'))); }
         if(U.role) route();
     </script>
 </body>
